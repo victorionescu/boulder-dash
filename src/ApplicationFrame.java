@@ -14,8 +14,8 @@ public class ApplicationFrame extends JFrame {
         setResizable(false);
 
         JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setContentPane(contentPane);
-
 
         caveView = new CaveView(cave);
 

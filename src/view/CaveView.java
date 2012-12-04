@@ -1,25 +1,33 @@
 package view;
 
 import model.Cave;
+import model.CaveElement;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: victor
- * Date: 03/12/2012
- * Time: 14:07
- * To change this template use File | Settings | File Templates.
- */
 public class CaveView extends JPanel {
-    private Cave cave;
+    private static final Map<Class<? extends CaveElement>, CaveElementPainter> painters =
+            new HashMap<Class<? extends CaveElement>, CaveElementPainter>();
+
+    private final Cave cave;
 
     public CaveView(Cave cave) {
-        int pixelWidth = cave.getWidth() * 30;
-        int pixelHeight = cave.getHeight() * 30;
+        this.cave = cave;
+    }
 
-        setPreferredSize(new Dimension(pixelWidth, pixelHeight));
-        setBorder(BorderFactory.createLineBorder(Color.black));
+    public void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D)g;
+
+        Color oldColor = g2d.getColor();
+        Shape oldClip = g2d.getClip();
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        g2d.setColor(oldColor);
+        g2d.setClip(oldClip);
     }
 }

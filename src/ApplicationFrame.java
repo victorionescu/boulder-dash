@@ -1,10 +1,10 @@
-import view.GameView;
+import view.CaveView;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ApplicationFrame extends JFrame {
-    private final GameView gameView;
+    private final CaveView caveView;
 
     public ApplicationFrame(int gridWidth, int gridHeight) {
         super("Boulder Dash");
@@ -16,9 +16,9 @@ public class ApplicationFrame extends JFrame {
         setContentPane(contentPane);
 
 
-        gameView = new GameView(gridWidth, gridHeight);
+        caveView = new CaveView(gridWidth, gridHeight);
 
-        contentPane.add(gameView, BorderLayout.CENTER);
+        contentPane.add(caveView, BorderLayout.CENTER);
         contentPane.add(getToolbar(), BorderLayout.NORTH);
 
         pack();

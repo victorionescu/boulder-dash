@@ -10,8 +10,8 @@ import java.awt.*;
  * Time: 14:07
  * To change this template use File | Settings | File Templates.
  */
-public class GameView extends JPanel {
-    public GameView(int gridWidth, int gridHeight) {
+public class CaveView extends JPanel {
+    public CaveView(int gridWidth, int gridHeight) {
         int pixelWidth = gridWidth * 30;
         int pixelHeight = gridHeight * 30;
 

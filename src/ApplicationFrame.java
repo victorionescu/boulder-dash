@@ -1,4 +1,5 @@
 import view.CaveView;
+import model.Cave;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,7 +7,7 @@ import java.awt.*;
 public class ApplicationFrame extends JFrame {
     private final CaveView caveView;
 
-    public ApplicationFrame(int gridWidth, int gridHeight) {
+    public ApplicationFrame(Cave cave) {
         super("Boulder Dash");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -16,7 +17,7 @@ public class ApplicationFrame extends JFrame {
         setContentPane(contentPane);
 
 
-        caveView = new CaveView(gridWidth, gridHeight);
+        caveView = new CaveView(cave);
 
         contentPane.add(caveView, BorderLayout.CENTER);
         contentPane.add(getToolbar(), BorderLayout.NORTH);
@@ -54,7 +55,8 @@ public class ApplicationFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        ApplicationFrame applicationFrame = new ApplicationFrame(40, 20);
+        Cave cave = new Cave(new Dimension(40, 20));
+        ApplicationFrame applicationFrame = new ApplicationFrame(cave);
         applicationFrame.setVisible(true);
     }
 }

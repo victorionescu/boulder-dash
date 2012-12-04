@@ -6,7 +6,17 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class IconElementPainter implements CaveElementPainter {
-    protected abstract ImageIcon getIcon();
+    abstract String imagePath();
+
+    private ImageIcon getIcon() {
+        java.net.URL imageURL = getClass().getResource(imagePath());
+        if (imageURL != null) {
+            return new ImageIcon(imageURL);
+        } else {
+            System.out.println("ERROR: Resource " + imagePath() + " not found.");
+            return null;
+        }
+    }
 
     public void paint(Graphics2D g, CaveElement e) {
         int offsetX = e.getX() * 30;

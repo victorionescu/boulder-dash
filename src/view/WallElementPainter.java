@@ -1,14 +1,16 @@
 package view;
 
-import javax.swing.*;
+import model.CaveElement;
 
-public class WallElementPainter extends IconElementPainter {
+import javax.swing.*;
+import java.awt.*;
+
+public class WallElementPainter implements CaveElementPainter {
     public static final WallElementPainter INSTANCE = new WallElementPainter();
 
     private WallElementPainter() {
     }
 
-    protected ImageIcon getIcon() {
-        return null;
+    public void paint(Graphics2D g, CaveElement e) {
     }
 }

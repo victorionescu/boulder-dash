@@ -1,20 +1,24 @@
+import view.GameView;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class ApplicationFrame extends JFrame {
-    public ApplicationFrame() {
+    private final GameView gameView;
+
+    public ApplicationFrame(int gridWidth, int gridHeight) {
         super("Boulder Dash");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(1000, 500));
+        setResizable(false);
 
         JPanel contentPane = new JPanel(new BorderLayout());
         setContentPane(contentPane);
 
-        JPanel gameScreen = new JPanel(new BorderLayout());
-        gameScreen.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        contentPane.add(gameScreen, BorderLayout.CENTER);
+        gameView = new GameView(gridWidth, gridHeight);
+
+        contentPane.add(gameView, BorderLayout.CENTER);
         contentPane.add(getToolbar(), BorderLayout.NORTH);
 
         pack();
@@ -22,6 +26,7 @@ public class ApplicationFrame extends JFrame {
 
     public JComponent getToolbar() {
         JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
 
         JToggleButton editButton = new JToggleButton("Edit");
 
@@ -49,7 +54,7 @@ public class ApplicationFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        ApplicationFrame applicationFrame = new ApplicationFrame();
+        ApplicationFrame applicationFrame = new ApplicationFrame(40, 20);
         applicationFrame.setVisible(true);
     }
 }

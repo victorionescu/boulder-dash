@@ -16,6 +16,7 @@ public class CaveView extends JPanel {
         painters.put(BoulderElement.class, BoulderElementPainter.INSTANCE);
         painters.put(DiamondElement.class, DiamondElementPainter.INSTANCE);
         painters.put(DirtElement.class, DirtElementPainter.INSTANCE);
+        painters.put(PlayerElement.class, PlayerElementPainter.INSTANCE);
     }
 
     protected CaveElementPainter getCaveElementPainter(CaveElement e) {

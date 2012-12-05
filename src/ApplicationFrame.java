@@ -60,6 +60,7 @@ public class ApplicationFrame extends JFrame {
         cave.putElement(1, 0, new BoulderElement(cave, new Point(1, 0)));
         cave.putElement(30, 10, new DiamondElement(cave, new Point(30, 10)));
         cave.putElement(20, 9, new DirtElement(cave, new Point(20, 9)));
+        cave.putElement(10, 9, new PlayerElement(cave, new Point(10, 9), PlayerElement.LastDirection.EAST));
         ApplicationFrame applicationFrame = new ApplicationFrame(cave);
         applicationFrame.setVisible(true);
     }

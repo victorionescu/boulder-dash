@@ -19,4 +19,8 @@ public abstract class CaveElement {
     public int getY() {
         return coordinates.y;
     }
+
+    public boolean isHeavy() {
+        return false;
+    }
 }

@@ -1,5 +1,5 @@
+import model.*;
 import view.CaveView;
-import model.Cave;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,6 +56,10 @@ public class ApplicationFrame extends JFrame {
 
     public static void main(String[] args) {
         Cave cave = new Cave(new Dimension(40, 20));
+        cave.putElement(0, 0, new BoulderElement(cave, new Point(0, 0)));
+        cave.putElement(1, 0, new BoulderElement(cave, new Point(1, 0)));
+        cave.putElement(30, 10, new DiamondElement(cave, new Point(30, 10)));
+        cave.putElement(20, 9, new DirtElement(cave, new Point(20, 9)));
         ApplicationFrame applicationFrame = new ApplicationFrame(cave);
         applicationFrame.setVisible(true);
     }

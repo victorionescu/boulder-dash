@@ -1,14 +1,17 @@
 package model;
 
+import util.Array2D;
+import java.util.Iterator;
+
 import java.awt.*;
 
 public class Cave {
-    private Dimension dimension;
-    private CaveElement[][] elements;
+    private final Dimension dimension;
+    private final Array2D<CaveElement> elements;
 
     public Cave(Dimension dimension) {
         this.dimension = dimension;
-        elements = new CaveElement[dimension.width][dimension.height];
+        elements = new Array2D<CaveElement>(dimension.width, dimension.height);
     }
 
     public int getWidth() {
@@ -17,5 +20,13 @@ public class Cave {
 
     public int getHeight() {
         return dimension.height;
+    }
+
+    public Array2D<CaveElement> getElements() {
+        return elements;
+    }
+
+    public void putElement(int x, int y, CaveElement e) {
+        elements.setElement(x, y, e);
     }
 }

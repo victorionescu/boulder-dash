@@ -8,6 +8,6 @@ public class BoulderElementPainter extends IconElementPainter {
     }
 
     protected String imagePath() {
-        return "resources/boulder.png";
+        return "../resources/boulder.png";
     }
 }

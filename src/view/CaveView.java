@@ -1,7 +1,6 @@
 package view;
 
-import model.Cave;
-import model.CaveElement;
+import model.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +11,23 @@ public class CaveView extends JPanel {
     private static final Map<Class<? extends CaveElement>, CaveElementPainter> painters =
             new HashMap<Class<? extends CaveElement>, CaveElementPainter>();
 
+    static {
+        painters.put(WallElement.class, WallElementPainter.INSTANCE);
+        painters.put(BoulderElement.class, BoulderElementPainter.INSTANCE);
+        painters.put(DiamondElement.class, DiamondElementPainter.INSTANCE);
+        painters.put(DirtElement.class, DirtElementPainter.INSTANCE);
+    }
+
+    protected CaveElementPainter getCaveElementPainter(CaveElement e) {
+        return painters.get(e.getClass());
+    }
+
     private final Cave cave;
 
     public CaveView(Cave cave) {
         this.cave = cave;
+        setPreferredSize(new Dimension(cave.getWidth() * 30, cave.getHeight() * 30));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     public void paintComponent(Graphics g) {
@@ -25,9 +37,17 @@ public class CaveView extends JPanel {
         Shape oldClip = g2d.getClip();
 
         g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        g2d.fillRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);
+        g2d.clipRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);
+
+        for (CaveElement e : cave.getElements()) {
+            System.out.println("we get  one here");
+            getCaveElementPainter(e).paint(g2d, e);
+        }
 
         g2d.setColor(oldColor);
         g2d.setClip(oldClip);
+        System.out.println("painted.");
     }
 }

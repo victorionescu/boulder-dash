@@ -1,4 +1,6 @@
+import controller.SelectTool;
 import model.*;
+import selection.SelectionManager;
 import view.CaveView;
 
 import javax.swing.*;
@@ -6,9 +8,12 @@ import java.awt.*;
 
 public class ApplicationFrame extends JFrame {
     private final CaveView caveView;
+    private final SelectionManager selectionManager;
 
     public ApplicationFrame(Cave cave) {
         super("Boulder Dash");
+
+        selectionManager = new SelectionManager();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
@@ -30,10 +35,13 @@ public class ApplicationFrame extends JFrame {
         toolBar.setFloatable(false);
 
         JToggleButton editButton = new JToggleButton("Edit");
+        new SelectTool(selectionManager, editButton, SelectionManager.Tools.EDIT);
 
         JToggleButton createWallButton = new JToggleButton("Create Wall");
+        new SelectTool(selectionManager, createWallButton, SelectionManager.Tools.CREATE_WALL);
 
         JToggleButton createBoulderButton = new JToggleButton("Create Boulder");
+        new SelectTool(selectionManager, createBoulderButton, SelectionManager.Tools.CREATE_BOULDER);
 
         JToggleButton createDiamondButton = new JToggleButton("Create Diamond");
 

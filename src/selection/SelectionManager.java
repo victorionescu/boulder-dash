@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class SelectionManager {
-    public static enum Tools { CREATE_WALL, CREATE_BOULDER, CREATE_DIAMOND, CREATE_PLAYER, PLAY, EDIT }
+    public static enum Tools { CREATE_WALL, CREATE_BOULDER,
+        CREATE_DIAMOND, CREATE_DIRT, CREATE_PLAYER, PLAY, EDIT }
 
     private Tools currentTool;
     private List<SelectionManagerListener> listeners;

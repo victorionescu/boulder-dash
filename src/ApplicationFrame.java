@@ -44,12 +44,16 @@ public class ApplicationFrame extends JFrame {
         new SelectTool(selectionManager, createBoulderButton, SelectionManager.Tools.CREATE_BOULDER);
 
         JToggleButton createDiamondButton = new JToggleButton("Create Diamond");
+        new SelectTool(selectionManager, createDiamondButton, SelectionManager.Tools.CREATE_DIAMOND);
 
         JToggleButton createDirtButton = new JToggleButton("Create Dirt");
+        new SelectTool(selectionManager, createDirtButton, SelectionManager.Tools.CREATE_DIRT);
 
         JToggleButton createPlayerButton = new JToggleButton("Create Player");
+        new SelectTool(selectionManager, createPlayerButton, SelectionManager.Tools.CREATE_PLAYER);
 
         JToggleButton playButton = new JToggleButton("Play");
+        new SelectTool(selectionManager, playButton, SelectionManager.Tools.PLAY);
 
         toolBar.add(editButton);
         toolBar.add(createWallButton);

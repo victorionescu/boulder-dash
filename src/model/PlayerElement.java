@@ -11,4 +11,8 @@ public class PlayerElement extends CaveElement {
         super(cave, coordinates);
         this.lastDirection = lastDirection;
     }
+
+    public void accept(CaveElementVisitor visitor) {
+        visitor.visit(this);
+    }
 }

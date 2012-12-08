@@ -10,7 +10,7 @@ public abstract class HeavyElement extends CaveElement {
         falling = false;
     }
 
-    public boolean isHeavy() {
+    public boolean isLethal() {
         return true;
     }
 
@@ -20,5 +20,9 @@ public abstract class HeavyElement extends CaveElement {
 
     public void setFalling(boolean falling) {
         this.falling = falling;
+    }
+
+    public void catchLandingElement(HeavyElement e) {
+
     }
 }

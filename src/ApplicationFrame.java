@@ -1,6 +1,9 @@
+import controller.DeleteSelection;
 import controller.SelectTool;
+import controller.SelectWallColor;
 import model.*;
 import selection.SelectionManager;
+import util.WallColor;
 import view.CaveView;
 
 import javax.swing.*;
@@ -55,6 +58,13 @@ public class ApplicationFrame extends JFrame {
         JToggleButton playButton = new JToggleButton("Play");
         new SelectTool(selectionManager, playButton, SelectionManager.Tools.PLAY);
 
+        JButton deleteButton = new JButton("Delete");
+        new DeleteSelection(selectionManager, deleteButton);
+
+        JComboBox wallColorBox = new JComboBox(WallColor.COLORS.toArray());
+        wallColorBox.addItem(new WallColor());
+        new SelectWallColor(selectionManager, wallColorBox);
+
         toolBar.add(editButton);
         toolBar.add(createWallButton);
         toolBar.add(createBoulderButton);
@@ -62,6 +72,11 @@ public class ApplicationFrame extends JFrame {
         toolBar.add(createDirtButton);
         toolBar.add(createPlayerButton);
         toolBar.add(playButton);
+
+        toolBar.addSeparator();
+
+        toolBar.add(deleteButton);
+        toolBar.add(wallColorBox);
 
         return toolBar;
     }

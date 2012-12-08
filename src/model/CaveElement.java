@@ -12,6 +12,10 @@ public abstract class CaveElement {
         this.coordinates = coordinates;
     }
 
+    public Cave getCave() {
+        return cave;
+    }
+
     public int getX() {
         return coordinates.x;
     }
@@ -20,7 +24,5 @@ public abstract class CaveElement {
         return coordinates.y;
     }
 
-    public boolean isHeavy() {
-        return false;
-    }
+    public abstract void accept(CaveElementVisitor visitor);
 }

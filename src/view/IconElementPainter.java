@@ -21,6 +21,10 @@ public abstract class IconElementPainter implements CaveElementPainter {
     public void paint(Graphics2D g, CaveElement e) {
         int offsetX = e.getX() * 30;
         int offsetY = e.getY() * 30;
+
+        g.setColor(Color.WHITE);
+        g.fillRect(offsetX, offsetY, 30, 30);
+
         try {
             getIcon().paintIcon(null, g, offsetX, offsetY);
         } catch (NullPointerException npe) {

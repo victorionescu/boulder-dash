@@ -1,7 +1,6 @@
 package model;
 
 import util.Array2D;
-import java.util.Iterator;
 
 import java.awt.*;
 
@@ -24,6 +23,10 @@ public class Cave {
 
     public Array2D<CaveElement> getElements() {
         return elements;
+    }
+
+    public CaveElement getElement(int x, int y) {
+        return elements.getElement(x, y);
     }
 
     public void putElement(int x, int y, CaveElement e) {

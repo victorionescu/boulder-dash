@@ -37,7 +37,7 @@ public class CaveView extends JPanel {
         Color oldColor = g2d.getColor();
         Shape oldClip = g2d.getClip();
 
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(Color.LIGHT_GRAY);
 
         g2d.fillRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);
         g2d.clipRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);

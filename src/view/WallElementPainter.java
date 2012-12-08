@@ -13,7 +13,7 @@ public class WallElementPainter implements CaveElementPainter {
 
     public void paint(Graphics2D g, CaveElement e) {
         WallElement wallElement = (WallElement)e;
-        g.setColor(wallElement.getColor());
+        g.setColor(wallElement.getWallColor().getColor());
 
         int offsetX = wallElement.getX() * 30;
         int offsetY = wallElement.getY() * 30;

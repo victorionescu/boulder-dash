@@ -29,4 +29,8 @@ public class SelectionManager {
     public void addListener(SelectionManagerListener listener) {
         listeners.add(listener);
     }
+
+    public boolean isSelectionEmpty() {
+        return true;
+    }
 }

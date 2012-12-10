@@ -109,12 +109,6 @@ public class ApplicationFrame extends JFrame {
 
     public static void main(String[] args) {
         Cave cave = new Cave(new Dimension(40, 20));
-        cave.setElement(0, 0, new BoulderElement(cave, new Point(0, 0)));
-        cave.setElement(1, 0, new BoulderElement(cave, new Point(1, 0)));
-        cave.setElement(30, 10, new DiamondElement(cave, new Point(30, 10)));
-        cave.setElement(20, 9, new WallElement(cave, new Point(20, 9), WallColor.COLORS.get(0)));
-        cave.setElement(20, 10, new WallElement(cave, new Point(20, 10), WallColor.COLORS.get(0)));
-        cave.setElement(10, 9, new PlayerElement(cave, new Point(10, 9), PlayerElement.LastDirection.EAST));
         ApplicationFrame applicationFrame = new ApplicationFrame(cave);
         applicationFrame.setVisible(true);
     }

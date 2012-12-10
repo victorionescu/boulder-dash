@@ -38,6 +38,7 @@ public class CaveView extends JPanel {
     private final MouseHandler createDiamondHandler;
     private final MouseHandler createDirtHandler;
     private final MouseHandler createPlayerHandler;
+    private final MouseHandler playHandler;
     protected MouseHandler currentMouseHandler;
 
 
@@ -60,6 +61,7 @@ public class CaveView extends JPanel {
         createDirtHandler = new CreateElementHandler(this, new DirtElement(cave, new Point(0, 0)));
         createPlayerHandler = new CreateElementHandler(this, new PlayerElement(cave, new Point(0, 0),
                 PlayerElement.LastDirection.WEST));
+        playHandler = new NullHandler(this);
 
         updateMouseHandler();
 
@@ -138,6 +140,9 @@ public class CaveView extends JPanel {
                 break;
             case CREATE_PLAYER:
                 currentMouseHandler = createPlayerHandler;
+                break;
+            case PLAY:
+                currentMouseHandler = playHandler;
                 break;
             default:
                 throw new IllegalArgumentException();

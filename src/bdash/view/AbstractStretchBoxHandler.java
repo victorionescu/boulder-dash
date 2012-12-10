@@ -59,4 +59,6 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
     protected void deselectElements(Point boxOrigin, Point boxTarget) {
         caveView.getSelectionManager().deselectElements(elementsInBox(boxOrigin, boxTarget));
     }
+
+    protected abstract void boxStretchingFinished();
 }

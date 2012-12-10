@@ -19,6 +19,11 @@ public class WallElement extends CaveElement {
         this.wallColor = wallColor;
     }
 
+    public CaveElement clone() {
+        Point newCoordinates = new Point(coordinates.x, coordinates.y);
+        return new WallElement(cave, newCoordinates, wallColor);
+    }
+
     public void accept(CaveElementVisitor visitor) {
         visitor.visit(this);
     }

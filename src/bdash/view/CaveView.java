@@ -3,6 +3,8 @@ package bdash.view;
 import bdash.model.*;
 import bdash.selection.SelectionManager;
 import bdash.selection.SelectionManagerListener;
+import bdash.util.WallColor;
+import sun.security.x509.CertAttrSet;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -30,6 +32,12 @@ public class CaveView extends JPanel {
     private final Cave cave;
     private final SelectionManager selectionManager;
     private final CaveViewListener caveViewListener;
+    private final MouseHandler editHandler;
+    private final MouseHandler createWallHandler;
+    private final MouseHandler createBoulderHandler;
+    private final MouseHandler createDiamondHandler;
+    private final MouseHandler createDirtHandler;
+    private final MouseHandler createPlayerHandler;
     protected MouseHandler currentMouseHandler;
 
 
@@ -44,10 +52,19 @@ public class CaveView extends JPanel {
         MouseEventForwarder forwarder = new MouseEventForwarder();
         addMouseListener(forwarder);
         addMouseMotionListener(forwarder);
-        currentMouseHandler = new EditHandler(this);
+        editHandler = new EditHandler(this);
+        createWallHandler = new CreateElementHandler(this, new WallElement(cave, new Point(0, 0),
+                WallColor.COLORS.get(0)));
+        createBoulderHandler = new CreateElementHandler(this, new BoulderElement(cave, new Point(0, 0)));
+        createDiamondHandler = new CreateElementHandler(this, new DiamondElement(cave, new Point(0, 0)));
+        createDirtHandler = new CreateElementHandler(this, new DirtElement(cave, new Point(0, 0)));
+        createPlayerHandler = new CreateElementHandler(this, new PlayerElement(cave, new Point(0, 0),
+                PlayerElement.LastDirection.WEST));
+
+        updateMouseHandler();
 
         setPreferredSize(new Dimension(cave.getWidth() * 30, cave.getHeight() * 30));
-        //setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     public Cave getCave() {
@@ -102,6 +119,33 @@ public class CaveView extends JPanel {
         g2d.setClip(oldClip);
     }
 
+    private void updateMouseHandler() {
+        switch (selectionManager.getCurrentTool()) {
+            case EDIT:
+                currentMouseHandler = editHandler;
+                break;
+            case CREATE_WALL:
+                currentMouseHandler = createWallHandler;
+                break;
+            case CREATE_BOULDER:
+                currentMouseHandler = createBoulderHandler;
+                break;
+            case CREATE_DIAMOND:
+                currentMouseHandler = createDiamondHandler;
+                break;
+            case CREATE_DIRT:
+                currentMouseHandler = createDirtHandler;
+                break;
+            case CREATE_PLAYER:
+                currentMouseHandler = createPlayerHandler;
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+
+        currentMouseHandler.makeActive();
+    }
+
     private class CaveViewListener implements CaveListener, SelectionManagerListener {
         public void caveElementWillChange(Cave cave, CaveElement caveElement) {
             repaint(caveElement.getX() * 30, caveElement.getY() * 30, 30, 30);
@@ -112,6 +156,7 @@ public class CaveView extends JPanel {
         }
 
         public void currentToolChanged(SelectionManager.Tools newCurrentTool) {
+            updateMouseHandler();
         }
 
         public void elementsSelected(Collection<? extends CaveElement> elements) {

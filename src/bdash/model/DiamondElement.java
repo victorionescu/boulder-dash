@@ -7,6 +7,11 @@ public class DiamondElement extends HeavyElement {
         super(cave, coordinates);
     }
 
+    public CaveElement clone() {
+        Point newCoordinates = new Point(coordinates.x, coordinates.y);
+        return new DiamondElement(cave, newCoordinates);
+    }
+
     public void accept(CaveElementVisitor visitor) {
         visitor.visit(this);
     }

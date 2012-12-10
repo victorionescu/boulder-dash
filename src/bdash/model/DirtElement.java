@@ -7,6 +7,11 @@ public class DirtElement extends CaveElement {
         super(cave, coordinates);
     }
 
+    public CaveElement clone() {
+        Point newCoordinates = new Point(coordinates.x, coordinates.y);
+        return new DirtElement(cave, newCoordinates);
+    }
+
     public void accept(CaveElementVisitor visitor) {
         visitor.visit(this);
     }

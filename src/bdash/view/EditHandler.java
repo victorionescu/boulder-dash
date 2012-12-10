@@ -5,6 +5,10 @@ import bdash.model.CaveElement;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 public class EditHandler extends AbstractStretchBoxHandler {
     private static enum Modes { STRETCH_BOX, DRAG_BOX }
 
@@ -20,6 +24,7 @@ public class EditHandler extends AbstractStretchBoxHandler {
         if (e.getButton() == MouseEvent.BUTTON1) {
             CaveElement hitElement = caveView.getCaveElementAt(e.getPoint().x, e.getPoint().y);
             if (hitElement == null) {
+                System.out.println("DOESN'T HIT ELEMENT");
                 throw new IllegalStateException();
             }
 
@@ -75,11 +80,16 @@ public class EditHandler extends AbstractStretchBoxHandler {
     }
 
     public void changeSelection() {
+        caveView.getSelectionManager().clearSelection();
+
         if (currentMode == null) {
+            return;
+        }
+
+        if (stretchBoxOrigin == null || stretchBoxTarget == null) {
             throw new IllegalStateException();
         }
 
-        caveView.getSelectionManager().clearSelection();
         selectElements(stretchBoxOrigin, stretchBoxTarget);
 
         if (currentMode == Modes.DRAG_BOX) {
@@ -97,15 +107,8 @@ public class EditHandler extends AbstractStretchBoxHandler {
         }
     }
 
-    public void reset() {
-        stretchBoxOrigin = null;
-        stretchBoxTarget = null;
-        dragBoxOrigin = null;
-        dragBoxTarget = null;
-        currentMode = null;
-    }
-
     public void makeActive() {
+        changeSelection();
     }
 
     protected void boxStretchingFinished() {
@@ -117,8 +120,21 @@ public class EditHandler extends AbstractStretchBoxHandler {
         int offsetX = dragBoxTarget.x - dragBoxOrigin.x;
         int offsetY = dragBoxTarget.y - dragBoxOrigin.y;
 
-        stretchBoxOrigin = new Point(stretchBoxOrigin.x + offsetX, stretchBoxOrigin.y + offsetY);
-        stretchBoxTarget = new Point(stretchBoxTarget.x + offsetX, stretchBoxTarget.y + offsetY);
+        Point newStretchBoxOrigin = new Point(stretchBoxOrigin.x + offsetX, stretchBoxOrigin.y + offsetY);
+        Point newStretchBoxTarget = new Point(stretchBoxTarget.x + offsetX, stretchBoxTarget.y + offsetY);
+
+        List<CaveElement> elementsToMove = elementsInBox(stretchBoxOrigin, stretchBoxTarget);
+
+        List<CaveElement> elementsToReplace = elementsInBox(newStretchBoxOrigin, newStretchBoxTarget);
+
+        if (!elementsToReplace.isEmpty()) {
+            moveElements(elementsToMove.iterator(),
+                         elementsToReplace.get(0).getX() - elementsToMove.get(0).getX(),
+                         elementsToReplace.get(0).getY() - elementsToMove.get(0).getY());
+        }
+
+        stretchBoxOrigin = newStretchBoxOrigin;
+        stretchBoxTarget = newStretchBoxTarget;
 
         dragBoxOrigin = null;
         dragBoxTarget = null;
@@ -126,5 +142,17 @@ public class EditHandler extends AbstractStretchBoxHandler {
         currentMode = Modes.STRETCH_BOX;
 
         changeSelection();
+    }
+
+    private void moveElements(Iterator<CaveElement> elementsToMove, int offsetX, int offsetY) {
+        while (elementsToMove.hasNext()) {
+            CaveElement element = elementsToMove.next();
+
+            CaveElement newElement = element.clone();
+            newElement.setX(element.getX() + offsetX);
+            newElement.setY(element.getY() + offsetY);
+
+            element.getCave().setElement(element.getX() + offsetX, element.getY() + offsetY, newElement);
+        }
     }
 }

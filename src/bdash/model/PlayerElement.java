@@ -12,6 +12,11 @@ public class PlayerElement extends CaveElement {
         this.lastDirection = lastDirection;
     }
 
+    public CaveElement clone() {
+        Point newCoordinates = new Point(coordinates.x, coordinates.y);
+        return new PlayerElement(cave, newCoordinates, lastDirection);
+    }
+
     public void accept(CaveElementVisitor visitor) {
         visitor.visit(this);
     }

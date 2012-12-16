@@ -13,9 +13,6 @@ public class PlayerElementPainter extends BlueSelectionPainter {
         int offsetX = e.getX() * 30;
         int offsetY = e.getY() * 30;
 
-        g.setColor(Color.YELLOW);
-        g.fillRect(offsetX, offsetY, 30, 30);
-
         g.setColor(Color.GREEN);
         g.drawOval(offsetX, offsetY, 30, 30);
     }

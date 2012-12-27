@@ -1,6 +1,6 @@
 package bdash.controller;
 
-import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 import bdash.selection.*;
 
 import javax.swing.*;
@@ -21,17 +21,18 @@ public class DeleteSelection implements ActionListener, SelectionManagerListener
     }
 
     public void actionPerformed(ActionEvent e) {
+        System.out.println("DELETE");
     }
 
     public void currentToolChanged(SelectionManager.Tools tool) {
         updateButton();
     }
 
-    public void elementsSelected(Collection<? extends CaveElement> elements) {
+    public void elementsSelected(Collection<CaveElementHolder> elements) {
         updateButton();
     }
 
-    public void elementsDeselected(Collection<? extends CaveElement> elements) {
+    public void elementsDeselected(Collection<CaveElementHolder> elements) {
         updateButton();
     }
 

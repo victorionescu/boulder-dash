@@ -1,20 +1,19 @@
 package bdash.selection;
 
-import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 
 import java.util.*;
 
 public class SelectionManager {
-    public static enum Tools { CREATE_WALL, CREATE_BOULDER,
-        CREATE_DIAMOND, CREATE_DIRT, CREATE_PLAYER, PLAY, EDIT }
+    public static enum Tools { CREATE_WALL, CREATE_BOULDER, CREATE_DIAMOND, CREATE_DIRT, CREATE_PLAYER, PLAY, EDIT }
 
     private Tools currentTool;
-    private final Set<CaveElement> selection;
+    private final Set<CaveElementHolder> selection;
     private final List<SelectionManagerListener> listeners;
 
     public SelectionManager() {
         listeners = new ArrayList<SelectionManagerListener>();
-        selection = new HashSet<CaveElement>();
+        selection = new HashSet<CaveElementHolder>();
         currentTool = Tools.EDIT;
     }
 
@@ -33,39 +32,39 @@ public class SelectionManager {
         return selection.isEmpty();
     }
 
-    public Iterator<CaveElement> getSelection() {
+    public Iterator<CaveElementHolder> getSelection() {
         return selection.iterator();
     }
 
-    public void selectElement(CaveElement element) {
-        selection.add(element);
+    public void selectElement(CaveElementHolder elementHolder) {
+        selection.add(elementHolder);
         for (SelectionManagerListener l : listeners) {
-            l.elementsSelected(Collections.singleton(element));
+            l.elementsSelected(Collections.singleton(elementHolder));
         }
     }
 
-    public void selectElements(Collection<? extends CaveElement> elements) {
-        for (CaveElement element : elements) {
-            selection.add(element);
+    public void selectElements(Collection<CaveElementHolder> elementHolders) {
+        for (CaveElementHolder elementHolder : elementHolders) {
+            selection.add(elementHolder);
         }
         for (SelectionManagerListener l : listeners) {
-            l.elementsSelected(elements);
+            l.elementsSelected(elementHolders);
         }
     }
 
-    public void deselectElement(CaveElement element) {
-        selection.remove(element);
+    public void deselectElement(CaveElementHolder elementHolder) {
+        selection.remove(elementHolder);
         for (SelectionManagerListener l : listeners) {
-            l.elementsDeselected(Collections.singleton(element));
+            l.elementsDeselected(Collections.singleton(elementHolder));
         }
     }
 
-    public void deselectElements(Collection<? extends CaveElement> elements) {
-        for (CaveElement element : elements) {
-            selection.remove(element);
+    public void deselectElements(Collection<CaveElementHolder> elementHolders) {
+        for (CaveElementHolder elementHolder : elementHolders) {
+            selection.remove(elementHolder);
         }
         for (SelectionManagerListener l : listeners) {
-            l.elementsDeselected(elements);
+            l.elementsDeselected(elementHolders);
         }
     }
 
@@ -76,8 +75,8 @@ public class SelectionManager {
         }
     }
 
-    public boolean isSelected(CaveElement element) {
-        return selection.contains(element);
+    public boolean isSelected(CaveElementHolder elementHolder) {
+        return selection.contains(elementHolder);
     }
 
     public void addListener(SelectionManagerListener listener) {

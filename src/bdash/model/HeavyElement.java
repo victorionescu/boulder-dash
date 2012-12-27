@@ -1,17 +1,10 @@
 package bdash.model;
 
-import java.awt.*;
-
 public abstract class HeavyElement extends CaveElement {
-    private boolean falling;
+    protected boolean falling;
 
-    public HeavyElement(Cave cave, Point coordinates) {
-        super(cave, coordinates);
+    public HeavyElement() {
         falling = false;
-    }
-
-    public boolean isLethal() {
-        return true;
     }
 
     public boolean isFalling() {
@@ -22,7 +15,5 @@ public abstract class HeavyElement extends CaveElement {
         this.falling = falling;
     }
 
-    public void catchLandingElement(HeavyElement e) {
-
-    }
+    public abstract boolean isLethal();
 }

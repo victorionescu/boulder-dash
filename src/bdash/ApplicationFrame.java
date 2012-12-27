@@ -5,20 +5,23 @@ import bdash.controller.SelectTool;
 import bdash.controller.SelectWallColor;
 import bdash.model.*;
 import bdash.selection.SelectionManager;
-import bdash.util.WallColor;
 import bdash.view.CaveView;
 
 import javax.swing.*;
 import java.awt.*;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class ApplicationFrame extends JFrame {
     private final CaveView caveView;
     private final SelectionManager selectionManager;
 
-    public ApplicationFrame(Cave cave) {
+    public ApplicationFrame(int width, int height) {
         super("Boulder Dash");
 
         selectionManager = new SelectionManager();
+        caveView = new CaveView(new Cave(width, height), selectionManager);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
@@ -27,10 +30,8 @@ public class ApplicationFrame extends JFrame {
         contentPane.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setContentPane(contentPane);
 
-        caveView = new CaveView(cave, selectionManager);
-
-        contentPane.add(caveView, BorderLayout.CENTER);
         contentPane.add(getToolbar(), BorderLayout.NORTH);
+        contentPane.add(caveView, BorderLayout.CENTER);
 
         pack();
     }
@@ -83,24 +84,22 @@ public class ApplicationFrame extends JFrame {
     }
 
     public static class WallColorComboBox extends JComboBox {
+        public static final List<WallElement.WallColor> COLORS = new ArrayList<WallElement.WallColor>();
+
+        static {
+            COLORS.add(WallElement.WallColor.UNDEFINED);
+            COLORS.add(WallElement.WallColor.RED);
+            COLORS.add(WallElement.WallColor.GREEN);
+            COLORS.add(WallElement.WallColor.BLUE);
+        }
+
         public WallColorComboBox() {
-            super(WallColor.COLORS.toArray());
-            addItem(new WallColor());
+            super(COLORS.toArray());
         }
 
-        public void selectWallColor(WallColor wallColor) {
+        public void selectWallColor(WallElement.WallColor wallColor) {
             for (int i = 0; i < getItemCount(); i += 1) {
-                WallColor item = (WallColor)getItemAt(i);
-                if (item == wallColor) {
-                    setSelectedIndex(i);
-                }
-            }
-        }
-
-        public void selectUndefined() {
-            for (int i = 0; i < getItemCount(); i += 1) {
-                WallColor item = (WallColor)getItemAt(i);
-                if (item.getColor() == null) {
+                if (getItemAt(i) == wallColor) {
                     setSelectedIndex(i);
                 }
             }
@@ -108,8 +107,7 @@ public class ApplicationFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        Cave cave = new Cave(new Dimension(40, 20));
-        ApplicationFrame applicationFrame = new ApplicationFrame(cave);
+        ApplicationFrame applicationFrame = new ApplicationFrame(40, 20);
         applicationFrame.setVisible(true);
     }
 }

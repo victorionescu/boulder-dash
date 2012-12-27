@@ -1,37 +1,34 @@
 package bdash.view;
 
+import bdash.controller.GameController;
 import bdash.model.*;
 import bdash.selection.SelectionManager;
 import bdash.selection.SelectionManagerListener;
-import bdash.util.WallColor;
-import sun.security.x509.CertAttrSet;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CaveView extends JPanel {
-    private static final Map<Class<? extends CaveElement>, CaveElementPainter> painters =
-            new HashMap<Class<? extends CaveElement>, CaveElementPainter>();
+    /* Cave object that is being monitored by the view and edited by the controller. */
+    private Cave cave;
 
-    static {
-        painters.put(WallElement.class, WallElementPainter.INSTANCE);
-        painters.put(BoulderElement.class, BoulderElementPainter.INSTANCE);
-        painters.put(DiamondElement.class, DiamondElementPainter.INSTANCE);
-        painters.put(DirtElement.class, DirtElementPainter.INSTANCE);
-        painters.put(PlayerElement.class, PlayerElementPainter.INSTANCE);
-        painters.put(EmptyElement.class, EmptyElementPainter.INSTANCE);
-    }
-
-    private final Cave cave;
+    /* SelectionManager object dealing with the current selection. */
     private final SelectionManager selectionManager;
+
+    /* Listens to the events triggered by either cave or selection manager changes. */
     private final CaveViewListener caveViewListener;
+
+    /* The game controller, responsible with the player's moves. */
+    private GameController gameController;
+
+    /* Mouse handlers, one for each tool provided by the toolbar. */
     private final MouseHandler editHandler;
     private final MouseHandler createWallHandler;
     private final MouseHandler createBoulderHandler;
@@ -39,6 +36,8 @@ public class CaveView extends JPanel {
     private final MouseHandler createDirtHandler;
     private final MouseHandler createPlayerHandler;
     private final MouseHandler playHandler;
+
+    /* Keeps track of the mouse handler corresponding to the selected tool. */
     protected MouseHandler currentMouseHandler;
 
 
@@ -46,25 +45,29 @@ public class CaveView extends JPanel {
     public CaveView(Cave cave, SelectionManager selectionManager) {
         this.cave = cave;
         this.selectionManager = selectionManager;
+
         caveViewListener = new CaveViewListener();
         selectionManager.addListener(caveViewListener);
         cave.addListener(caveViewListener);
 
+        /* Have a MouseEventForwarder pass events to the appropriate handler. */
         MouseEventForwarder forwarder = new MouseEventForwarder();
         addMouseListener(forwarder);
         addMouseMotionListener(forwarder);
+
+        /* Initialize mouse handlers. */
         editHandler = new EditHandler(this);
-        createWallHandler = new CreateElementHandler(this, new WallElement(cave, new Point(0, 0),
-                WallColor.COLORS.get(0)));
-        createBoulderHandler = new CreateElementHandler(this, new BoulderElement(cave, new Point(0, 0)));
-        createDiamondHandler = new CreateElementHandler(this, new DiamondElement(cave, new Point(0, 0)));
-        createDirtHandler = new CreateElementHandler(this, new DirtElement(cave, new Point(0, 0)));
-        createPlayerHandler = new CreateElementHandler(this, new PlayerElement(cave, new Point(0, 0),
-                PlayerElement.LastDirection.WEST));
+        createWallHandler = new CreateElementHandler(this, new WallElement(WallElement.WallColor.RED));
+        createBoulderHandler = new CreateElementHandler(this, new BoulderElement());
+        createDiamondHandler = new CreateElementHandler(this, new DiamondElement());
+        createDirtHandler = new CreateElementHandler(this, new DirtElement());
+        createPlayerHandler = new CreateElementHandler(this, new PlayerElement());
         playHandler = new NullHandler(this);
 
+        /* Select the initial mouse handler. */
         updateMouseHandler();
 
+        /* Style options. */
         setPreferredSize(new Dimension(cave.getWidth() * 30, cave.getHeight() * 30));
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
@@ -77,21 +80,19 @@ public class CaveView extends JPanel {
         return selectionManager;
     }
 
-    protected CaveElementPainter getCaveElementPainter(CaveElement e) {
-        return painters.get(e.getClass());
-    }
-
-    public CaveElement getCaveElementAt(int x, int y) {
-        Iterator<CaveElement> elements = cave.getElements();
-        while (elements.hasNext()) {
-            CaveElement e = elements.next();
-            if (e.isHit(x, y)) {
-                return e;
+    public CaveElementHolder getElementHolderAt(int x, int y) {
+        Iterator<CaveElementHolder> elementHolders = cave.getElementHolders();
+        while (elementHolders.hasNext()) {
+            CaveElementHolder elementHolder = elementHolders.next();
+            if (elementHolder.isHit(x, y)) {
+                return elementHolder;
             }
         }
         return null;
     }
 
+    /* Paint the cave view. */
+    @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
 
@@ -100,20 +101,27 @@ public class CaveView extends JPanel {
 
         g2d.setColor(Color.WHITE);
 
-        g2d.fillRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);
-        g2d.clipRect(0, 0, cave.getWidth() * 30, cave.getHeight() * 30);
+        g2d.fillRect(0,
+                     0,
+                     cave.getWidth() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                     cave.getHeight() * CaveElementHolder.HOLDER_SIZE_IN_PX);
 
-        Iterator<CaveElement> elements = cave.getElements();
-        while (elements.hasNext()) {
-            CaveElement e = elements.next();
-            getCaveElementPainter(e).paint(g2d, e);
+        g2d.clipRect(0,
+                     0,
+                     cave.getWidth() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                     cave.getHeight() * CaveElementHolder.HOLDER_SIZE_IN_PX);
+
+        Iterator<CaveElementHolder> elementHolders = cave.getElementHolders();
+        while (elementHolders.hasNext()) {
+            CaveElementHolder elementHolder = elementHolders.next();
+            CaveElementHolderPainter.PAINTER.paint(g2d, elementHolder);
         }
 
         if (!selectionManager.isSelectionEmpty()) {
-            Iterator<CaveElement> selectedElements = selectionManager.getSelection();
+            Iterator<CaveElementHolder> selectedElements = selectionManager.getSelection();
             while (selectedElements.hasNext()) {
-                CaveElement e = selectedElements.next();
-                getCaveElementPainter(e).paintSelection(g2d, e);
+                CaveElementHolder elementHolder = selectedElements.next();
+                CaveElementHolderPainter.PAINTER.paintSelection(g2d, elementHolder);
             }
         }
 
@@ -121,6 +129,29 @@ public class CaveView extends JPanel {
         g2d.setClip(oldClip);
     }
 
+    /* Initialize game controller and save cave state whenever play mode becomes active. */
+    private void handlePlayMode() {
+        System.out.println("PLAY!!");
+        /*if (isPlayActive) {
+            cave = caveCopy;
+            isPlayActive = false;
+
+            if (gameController == null) {
+                throw new IllegalStateException();
+            }
+            gameController.stopTimer();
+        }
+
+        if (selectionManager.getCurrentTool() == SelectionManager.Tools.PLAY) {
+            caveCopy = cave;
+            cave = caveCopy.clone();
+            isPlayActive = true;
+
+            gameController = new GameController(this);
+        }*/
+    }
+
+    /* Activate the handler corresponding to the currently selected tool. */
     private void updateMouseHandler() {
         switch (selectionManager.getCurrentTool()) {
             case EDIT:
@@ -151,24 +182,34 @@ public class CaveView extends JPanel {
         currentMouseHandler.makeActive();
     }
 
+    /* Listener class keeping track of changes that occur at both Cave and SelectionManager level.
+       Implements the Adapter pattern.
+     */
     private class CaveViewListener implements CaveListener, SelectionManagerListener {
-        public void caveElementWillChange(Cave cave, CaveElement caveElement) {
-            repaint(caveElement.getX() * 30, caveElement.getY() * 30, 30, 30);
+        public void caveElementWillChange(Cave cave, CaveElementHolder elementHolder) {
+            repaint(elementHolder.getColumn() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    elementHolder.getRow() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    CaveElementHolder.HOLDER_SIZE_IN_PX);
         }
 
-        public void caveElementChanged(Cave cave, CaveElement caveElement) {
-            repaint(caveElement.getX() * 30, caveElement.getY() * 30, 30, 30);
+        public void caveElementChanged(Cave cave, CaveElementHolder elementHolder) {
+            repaint(elementHolder.getColumn() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    elementHolder.getRow() * CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    CaveElementHolder.HOLDER_SIZE_IN_PX,
+                    CaveElementHolder.HOLDER_SIZE_IN_PX);
         }
 
         public void currentToolChanged(SelectionManager.Tools newCurrentTool) {
             updateMouseHandler();
+            //handlePlayMode();
         }
 
-        public void elementsSelected(Collection<? extends CaveElement> elements) {
+        public void elementsSelected(Collection<CaveElementHolder> elements) {
             repaint();
         }
 
-        public void elementsDeselected(Collection<? extends CaveElement> elements) {
+        public void elementsDeselected(Collection<CaveElementHolder> elements) {
             repaint();
         }
 
@@ -177,6 +218,7 @@ public class CaveView extends JPanel {
         }
     }
 
+    /* Mouse event forwarder class used to forward mouse events to the appropriate handler. */
     private class MouseEventForwarder implements MouseListener, MouseMotionListener {
         public void mouseEntered(MouseEvent e) {
             currentMouseHandler.mouseEntered(e);

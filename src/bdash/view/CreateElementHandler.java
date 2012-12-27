@@ -1,6 +1,7 @@
 package bdash.view;
 
 import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
@@ -25,11 +26,6 @@ public class CreateElementHandler extends AbstractStretchBoxHandler {
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             boxStretchingFinished();
-
-            stretchBoxOrigin = null;
-            stretchBoxTarget = null;
-
-            changeSelection();
         }
     }
 
@@ -47,14 +43,15 @@ public class CreateElementHandler extends AbstractStretchBoxHandler {
     }
 
     public void boxStretchingFinished() {
-        Iterator<CaveElement> selection = caveView.getSelectionManager().getSelection();
+        Iterator<CaveElementHolder> selection = caveView.getSelectionManager().getSelection();
         while (selection.hasNext()) {
-            CaveElement element = selection.next();
+            CaveElementHolder elementHolder = selection.next();
             CaveElement newElement = elementToClone.clone();
-            newElement.setX(element.getX());
-            newElement.setY(element.getY());
-            element.getCave().setElement(element.getX(), element.getY(), newElement);
+            elementHolder.setCaveElement(newElement);
         }
+
+        stretchBoxOrigin = null;
+        stretchBoxTarget = null;
 
         changeSelection();
     }

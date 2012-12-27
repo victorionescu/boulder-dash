@@ -1,11 +1,12 @@
 package bdash.view;
 
 import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class IconElementPainter extends BlueSelectionPainter {
+public abstract class IconElementPainter implements CaveElementPainter {
     abstract String imagePath();
 
     private ImageIcon getIcon() {
@@ -18,12 +19,12 @@ public abstract class IconElementPainter extends BlueSelectionPainter {
         }
     }
 
-    public void paint(Graphics2D g, CaveElement e) {
-        int offsetX = e.getX() * 30;
-        int offsetY = e.getY() * 30;
+    public void paint(Graphics2D g, CaveElement e, int row, int column) {
+        int offsetX = column * CaveElementHolder.HOLDER_SIZE_IN_PX;
+        int offsetY = row * CaveElementHolder.HOLDER_SIZE_IN_PX;
 
         g.setColor(Color.WHITE);
-        g.fillRect(offsetX, offsetY, 30, 30);
+        g.fillRect(offsetX, offsetY, CaveElementHolder.HOLDER_SIZE_IN_PX, CaveElementHolder.HOLDER_SIZE_IN_PX);
 
         try {
             getIcon().paintIcon(null, g, offsetX, offsetY);
@@ -31,4 +32,6 @@ public abstract class IconElementPainter extends BlueSelectionPainter {
             System.out.println("FATAL: Could not load icon.");
         }
     }
+
+    public void paintSelection(Graphics2D g, CaveElement e, int row, int column) {}
 }

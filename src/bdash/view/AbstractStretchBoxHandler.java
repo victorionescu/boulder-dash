@@ -1,12 +1,11 @@
 package bdash.view;
 
-import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public abstract class AbstractStretchBoxHandler implements MouseHandler {
@@ -27,21 +26,21 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
 
     public void mouseMoved(MouseEvent e) {}
 
-    protected List<CaveElement> elementsInBox(Point boxOrigin, Point boxTarget) {
-        CaveElement start = caveView.getCaveElementAt(boxOrigin.x, boxOrigin.y);
-        CaveElement end = caveView.getCaveElementAt(boxTarget.x, boxTarget.y);
+    protected List<CaveElementHolder> elementsInBox(Point boxOrigin, Point boxTarget) {
+        CaveElementHolder start = caveView.getElementHolderAt(boxOrigin.x, boxOrigin.y);
+        CaveElementHolder end = caveView.getElementHolderAt(boxTarget.x, boxTarget.y);
 
-        List<CaveElement> elementList = new ArrayList<CaveElement>();
+        List<CaveElementHolder> elementList = new ArrayList<CaveElementHolder>();
 
         if (start != null && end != null) {
-            int xMin = Math.min(start.getX(), end.getX());
-            int xMax = Math.max(start.getX(), end.getX());
-            int yMin = Math.min(start.getY(), end.getY());
-            int yMax = Math.max(start.getY(), end.getY());
+            int rowMin = Math.min(start.getRow(), end.getRow());
+            int rowMax = Math.max(start.getRow(), end.getRow());
+            int columnMin = Math.min(start.getColumn(), end.getColumn());
+            int columnMax = Math.max(start.getColumn(), end.getColumn());
 
-            for (int i = xMin; i <= xMax; i += 1) {
-                for (int j = yMin; j <= yMax; j += 1) {
-                    elementList.add(caveView.getCave().getElement(i, j));
+            for (int row = rowMin; row <= rowMax; row += 1) {
+                for (int column = columnMin; column <= columnMax; column += 1) {
+                    elementList.add(caveView.getCave().getElementHolder(row, column));
                 }
             }
         }
@@ -53,9 +52,9 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
         caveView.getSelectionManager().selectElements(elementsInBox(boxOrigin, boxTarget));
     }
 
-    protected void deselectElements(Point boxOrigin, Point boxTarget) {
+    /*protected void deselectElements(Point boxOrigin, Point boxTarget) {
         caveView.getSelectionManager().deselectElements(elementsInBox(boxOrigin, boxTarget));
-    }
+    }*/
 
     protected abstract void boxStretchingFinished();
 }

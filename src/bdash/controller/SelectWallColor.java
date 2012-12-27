@@ -2,18 +2,15 @@ package bdash.controller;
 
 import bdash.ApplicationFrame;
 
-import bdash.model.Cave;
-import bdash.model.CaveElement;
-import bdash.model.WallElement;
+import bdash.model.*;
 import bdash.selection.*;
-import bdash.util.WallColor;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class SelectWallColor implements ActionListener, SelectionManagerListener {
+public class SelectWallColor implements ItemListener, SelectionManagerListener {
     private final SelectionManager selectionManager;
     private final ApplicationFrame.WallColorComboBox comboBox;
 
@@ -21,35 +18,23 @@ public class SelectWallColor implements ActionListener, SelectionManagerListener
         this.selectionManager = selectionManager;
         this.comboBox = comboBox;
         selectionManager.addListener(this);
-        comboBox.addActionListener(this);
+        comboBox.addItemListener(this);
         updateBox();
     }
 
-    public void actionPerformed(ActionEvent e) {
-        WallColor newWallColor = (WallColor)comboBox.getItemAt(comboBox.getSelectedIndex());
-        if (newWallColor.getColor() != null) {
-            Iterator<CaveElement> selection = selectionManager.getSelection();
-
-            while (selection.hasNext()) {
-                WallElement element = (WallElement)selection.next();
-                Cave cave = element.getCave();
-
-                cave.fireCaveElementWillChange(element);
-                element.setWallColor(newWallColor);
-                cave.fireCaveElementChanged(element);
-            }
-        }
+    public void itemStateChanged(ItemEvent e) {
+        updateWalls();
     }
 
     public void currentToolChanged(SelectionManager.Tools tool) {
         updateBox();
     }
 
-    public void elementsSelected(Collection<? extends CaveElement> elements) {
+    public void elementsSelected(Collection<CaveElementHolder> elements) {
         updateBox();
     }
 
-    public void elementsDeselected(Collection<? extends CaveElement> elements) {
+    public void elementsDeselected(Collection<CaveElementHolder> elements) {
         updateBox();
     }
 
@@ -60,21 +45,41 @@ public class SelectWallColor implements ActionListener, SelectionManagerListener
     public void updateBox() {
         comboBox.setVisible(selectionManager.getCurrentTool() == SelectionManager.Tools.EDIT);
 
-        Iterator<CaveElement> selection = selectionManager.getSelection();
-        WallCountVisitor wallCountVisitor = new WallCountVisitor();
+        Iterator<CaveElementHolder> selection = selectionManager.getSelection();
 
-        while (selection.hasNext() && wallCountVisitor.hasWallsOnly()) {
-            CaveElement element = selection.next();
-            element.accept(wallCountVisitor);
+        WallCheckVisitor wallCheckVisitor = new WallCheckVisitor();
+
+        while (selection.hasNext() && wallCheckVisitor.hasWallsOnly()) {
+            CaveElement element = selection.next().getCaveElement();
+            if (element != null) {
+                element.accept(wallCheckVisitor);
+            }
         }
 
         comboBox.setEnabled(!selectionManager.isSelectionEmpty() &&
-                wallCountVisitor.hasWallsOnly());
-        if (comboBox.isEnabled()) {
-            if (wallCountVisitor.isSameColor()) {
-                comboBox.selectWallColor(wallCountVisitor.getWallColor());
-            } else {
-                comboBox.selectUndefined();
+                wallCheckVisitor.hasWallsOnly());
+
+        comboBox.selectWallColor(wallCheckVisitor.getWallColor());
+    }
+
+    public void updateWalls() {
+        WallElement.WallColor newWallColor = (WallElement.WallColor)comboBox.getItemAt(comboBox.getSelectedIndex());
+        if (newWallColor != WallElement.WallColor.UNDEFINED) {
+            Iterator<CaveElementHolder> selection = selectionManager.getSelection();
+
+            while (selection.hasNext()) {
+                CaveElementHolder elementHolder = selection.next();
+
+                if (elementHolder.getCaveElement() != null) {
+                    Cave cave = elementHolder.getCave();
+
+                    cave.fireElementHolderWillChange(elementHolder);
+
+                    WallElement wallElement = (WallElement)elementHolder.getCaveElement();
+                    wallElement.setWallColor(newWallColor);
+
+                    cave.fireElementHolderChanged(elementHolder);
+                }
             }
         }
     }

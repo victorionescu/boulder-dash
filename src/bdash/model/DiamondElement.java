@@ -1,15 +1,12 @@
 package bdash.model;
 
-import java.awt.*;
-
 public class DiamondElement extends HeavyElement {
-    public DiamondElement(Cave cave, Point coordinates) {
-        super(cave, coordinates);
+    public boolean isLethal() {
+        return true;
     }
 
-    public CaveElement clone() {
-        Point newCoordinates = new Point(coordinates.x, coordinates.y);
-        return new DiamondElement(cave, newCoordinates);
+    public CaveElement deepClone() {
+        return new DiamondElement();
     }
 
     public void accept(CaveElementVisitor visitor) {

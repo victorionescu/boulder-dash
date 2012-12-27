@@ -1,14 +1,13 @@
 package bdash.controller;
 
 import bdash.model.*;
-import bdash.util.WallColor;
 
-public class WallCountVisitor implements CaveElementVisitor {
+public class WallCheckVisitor implements CaveElementVisitor {
     private boolean wallsOnly;
     private boolean sameColor;
-    private WallColor wallColor;
+    private WallElement.WallColor wallColor;
 
-    public WallCountVisitor() {
+    public WallCheckVisitor() {
         wallsOnly = true;
         sameColor = true;
         wallColor = null;
@@ -18,23 +17,28 @@ public class WallCountVisitor implements CaveElementVisitor {
         return wallsOnly;
     }
 
-    public boolean isSameColor() {
-        return sameColor;
-    }
+    public WallElement.WallColor getWallColor() {
 
-    public WallColor getWallColor() {
-        return wallColor;
+        if (wallsOnly && sameColor && wallColor != null) {
+            return wallColor;
+        } else {
+            return WallElement.WallColor.UNDEFINED;
+        }
     }
 
     public void visit(WallElement e) {
         if (wallColor == null) {
             wallColor = e.getWallColor();
         } else {
-            sameColor = (e.getWallColor() == wallColor);
+            sameColor = sameColor && (e.getWallColor() == wallColor);
         }
     }
 
-    public void visit(HeavyElement e) {
+    public void visit(BoulderElement e) {
+        wallsOnly = false;
+    }
+
+    public void visit(DiamondElement e) {
         wallsOnly = false;
     }
 

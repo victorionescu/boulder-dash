@@ -4,28 +4,28 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class Array2D<E> implements Iterable<E> {
-    private Object[][] theArray;
-    private int width, height;
+    protected Object[][] theArray;
+    protected int width, height;
 
     public Array2D(int width, int height) {
         this.width = width;
         this.height = height;
-        theArray = new Object[width][height];
+        theArray = new Object[height][width];
     }
 
-    public void setElement(int x, int y, E element) {
-        if (x < 0 || x >= width || y < 0 || y >= height) {
+    public void setElement(int row, int column, E element) {
+        if (row < 0 || row >= height || column < 0 || column >= width) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        theArray[x][y] = element;
+        theArray[row][column] = element;
     }
 
     @SuppressWarnings("unchecked")
-    public E getElement(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height) {
+    public E getElement(int row, int column) {
+        if (row < 0 || row >= height || column < 0 || column >= width) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        return (E)theArray[x][y];
+        return (E)theArray[row][column];
     }
 
     public Iterator<E> iterator() {
@@ -34,30 +34,28 @@ public class Array2D<E> implements Iterable<E> {
 
     private static class Array2DIterator<E> implements Iterator<E> {
         private final Array2D<E> array2D;
-        private final int width, height;
-        private int x, y;
+        private int currentRow, currentColumn;
 
         protected void makeStep() {
-            x += 1;
-            if (x >= width) {
-                x = 0;
-                y -= 1;
+            currentColumn += 1;
+            if (currentColumn >= array2D.width) {
+                currentColumn = 0;
+                currentRow -= 1;
             }
         }
 
         public Array2DIterator(Array2D<E> array2D) {
             this.array2D = array2D;
-            width = array2D.width;
-            height = array2D.height;
-            x = 0;
-            y = height - 1;
+
+            currentColumn = 0;
+            currentRow = array2D.height - 1;
         }
 
         public boolean hasNext() {
-            while (y >= 0 && array2D.getElement(x, y) == null) {
+            while (currentRow >= 0 && array2D.getElement(currentRow, currentColumn) == null) {
                 makeStep();
             }
-            return (y >= 0);
+            return (currentRow >= 0);
         }
 
         public E next() {
@@ -65,7 +63,7 @@ public class Array2D<E> implements Iterable<E> {
                 throw new NoSuchElementException();
             }
 
-            E element = array2D.getElement(x, y);
+            E element = array2D.getElement(currentRow, currentColumn);
             makeStep();
 
             return element;

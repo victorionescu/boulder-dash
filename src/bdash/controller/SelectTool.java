@@ -1,6 +1,6 @@
 package bdash.controller;
 
-import bdash.model.CaveElement;
+import bdash.model.CaveElementHolder;
 import bdash.selection.*;
 
 import javax.swing.*;
@@ -30,9 +30,9 @@ public class SelectTool implements ActionListener, SelectionManagerListener {
         updateButton();
     }
 
-    public void elementsSelected(Collection<? extends CaveElement> elements) {}
+    public void elementsSelected(Collection<CaveElementHolder> elements) {}
 
-    public void elementsDeselected(Collection<? extends CaveElement> elements) {}
+    public void elementsDeselected(Collection<CaveElementHolder> elements) {}
 
     public void selectionCleared() {}
 

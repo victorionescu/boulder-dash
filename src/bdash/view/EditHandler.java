@@ -1,7 +1,9 @@
 package bdash.view;
 
+import bdash.model.Cave;
 import bdash.model.CaveElement;
 import bdash.model.CaveElementHolder;
+import bdash.model.CaveListener;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -9,22 +11,27 @@ import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
-public class EditHandler extends AbstractStretchBoxHandler {
+public class EditHandler extends AbstractStretchBoxHandler implements CaveListener {
     private static enum Modes { STRETCH_BOX, DRAG_BOX }
 
     private Point dragBoxOrigin;
     private Point dragBoxTarget;
     private Modes currentMode;
+    private final List<CaveElementHolder> selection;
 
     public EditHandler(CaveView caveView) {
         super(caveView);
+
+        selection = new ArrayList<CaveElementHolder>();
+        currentMode = null;
+        dragBoxOrigin = null;
+        dragBoxTarget = null;
     }
 
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             CaveElementHolder hitElement = caveView.getElementHolderAt(e.getPoint().x, e.getPoint().y);
             if (hitElement == null) {
-                System.out.println("DOESN'T HIT ELEMENT");
                 throw new IllegalStateException();
             }
 
@@ -32,8 +39,6 @@ public class EditHandler extends AbstractStretchBoxHandler {
                 if (stretchBoxOrigin == null || stretchBoxTarget == null) {
                     throw new IllegalStateException();
                 }
-
-                currentMode = Modes.DRAG_BOX;
 
                 dragBoxOrigin = e.getPoint();
                 dragBoxTarget = e.getPoint();
@@ -90,20 +95,30 @@ public class EditHandler extends AbstractStretchBoxHandler {
             throw new IllegalStateException();
         }
 
-        selectElements(stretchBoxOrigin, stretchBoxTarget);
+        if (currentMode == Modes.STRETCH_BOX) {
+            selectElementsInBox(stretchBoxOrigin, stretchBoxTarget);
+        } else {
+            caveView.getSelectionManager().selectElements(selection);
 
-        if (currentMode == Modes.DRAG_BOX) {
-            if (dragBoxOrigin == null || dragBoxTarget == null) {
-                throw new IllegalStateException();
+            if (dragBoxOrigin != null && dragBoxTarget != null) {
+                int columnOffset = (dragBoxTarget.x - dragBoxOrigin.x) / 30;
+                int rowOffset = (dragBoxTarget.y - dragBoxOrigin.y) / 30;
+
+
+                List<CaveElementHolder> elementsToSelect = new ArrayList<CaveElementHolder>();
+
+                for (CaveElementHolder selectedHolder : selection) {
+                    int newRow = selectedHolder.getRow() + rowOffset;
+                    int newColumn = selectedHolder.getColumn() + columnOffset;
+
+                    if (newRow >= 0 && newRow < caveView.getCave().getHeight() &&
+                            newColumn >= 0 && newColumn < caveView.getCave().getWidth()) {
+                        elementsToSelect.add(caveView.getCave().getElementHolder(newRow, newColumn));
+                    }
+                }
+
+                caveView.getSelectionManager().selectElements(elementsToSelect);
             }
-
-            int offsetX = dragBoxTarget.x - dragBoxOrigin.x;
-            int offsetY = dragBoxTarget.y - dragBoxOrigin.y;
-
-            Point newOrigin = new Point(stretchBoxOrigin.x + offsetX, stretchBoxOrigin.y + offsetY);
-            Point newTarget = new Point(stretchBoxTarget.x + offsetX, stretchBoxTarget.y + offsetY);
-
-            selectElements(newOrigin, newTarget);
         }
     }
 
@@ -111,71 +126,64 @@ public class EditHandler extends AbstractStretchBoxHandler {
         changeSelection();
     }
 
-    protected void boxStretchingFinished() {
-        stretchBoxOrigin =
-            new Point(CaveElementHolder.HOLDER_SIZE_IN_PX * (stretchBoxOrigin.x / CaveElementHolder.HOLDER_SIZE_IN_PX),
-                      CaveElementHolder.HOLDER_SIZE_IN_PX * (stretchBoxOrigin.y / CaveElementHolder.HOLDER_SIZE_IN_PX));
-
-        stretchBoxTarget =
-            new Point(CaveElementHolder.HOLDER_SIZE_IN_PX * (stretchBoxTarget.x / CaveElementHolder.HOLDER_SIZE_IN_PX),
-                      CaveElementHolder.HOLDER_SIZE_IN_PX * (stretchBoxTarget.y / CaveElementHolder.HOLDER_SIZE_IN_PX));
-
-        List<CaveElementHolder> selectedEmptyHolders = new ArrayList<CaveElementHolder>();
-        Iterator<CaveElementHolder> selection = caveView.getSelectionManager().getSelection();
-        while (selection.hasNext()) {
-            CaveElementHolder elementHolder = selection.next();
-            if (elementHolder.getCaveElement() == null) {
-                selectedEmptyHolders.add(elementHolder);
-            }
-        }
-        caveView.getSelectionManager().deselectElements(selectedEmptyHolders);
+    public void caveElementWillChange(Cave cave, CaveElementHolder elementHolder) {
+        selection.remove(elementHolder);
     }
 
-    protected void boxDraggingFinished() {
-        int offsetX = dragBoxTarget.x - dragBoxOrigin.x;
-        int offsetY = dragBoxTarget.y - dragBoxOrigin.y;
+    public void caveElementChanged(Cave cave, CaveElementHolder elementHolder) {
+        selection.remove(elementHolder);
+    }
 
-        Point newStretchBoxOrigin = new Point(stretchBoxOrigin.x + offsetX, stretchBoxOrigin.y + offsetY);
-        Point newStretchBoxTarget = new Point(stretchBoxTarget.x + offsetX, stretchBoxTarget.y + offsetY);
+    protected void boxStretchingFinished() {
+        currentMode = Modes.DRAG_BOX;
 
-        List<CaveElementHolder> elementsToMove = elementsInBox(stretchBoxOrigin, stretchBoxTarget);
-
-        List<CaveElementHolder> elementsToReplace = elementsInBox(newStretchBoxOrigin, newStretchBoxTarget);
-
-        if (!elementsToReplace.isEmpty()) {
-            moveElements(elementsToMove.iterator(),
-                         elementsToReplace.get(0).getRow() - elementsToMove.get(0).getRow(),
-                         elementsToReplace.get(0).getColumn() - elementsToMove.get(0).getColumn());
+        selection.clear();
+        List<CaveElementHolder> boxElements = elementsInBox(stretchBoxOrigin, stretchBoxTarget);
+        for (CaveElementHolder selectedHolder : boxElements) {
+            if (selectedHolder.getCaveElement() != null) {
+                selection.add(selectedHolder);
+            }
         }
-
-        stretchBoxOrigin = newStretchBoxOrigin;
-        stretchBoxTarget = newStretchBoxTarget;
-
-        dragBoxOrigin = null;
-        dragBoxTarget = null;
-
-        currentMode = Modes.STRETCH_BOX;
 
         changeSelection();
     }
 
-    private void moveElements(Iterator<CaveElementHolder> elementsToMove, int rowOffset, int columnOffset) {
+    protected void boxDraggingFinished() {
+        int columnOffset = (dragBoxTarget.x - dragBoxOrigin.x) / CaveElementHolder.HOLDER_SIZE_IN_PX;
+        int rowOffset = (dragBoxTarget.y - dragBoxOrigin.y) / CaveElementHolder.HOLDER_SIZE_IN_PX;
+
+        moveElements(rowOffset, columnOffset);
+
+        stretchBoxOrigin = null;
+        stretchBoxTarget = null;
+
+        dragBoxOrigin = null;
+        dragBoxTarget = null;
+
+        currentMode = null;
+
+        changeSelection();
+    }
+
+    private void moveElements(int rowOffset, int columnOffset) {
         Map<CaveElementHolder, CaveElement>  holdersToElements = new HashMap<CaveElementHolder, CaveElement>();
 
-        while (elementsToMove.hasNext()) {
-            CaveElementHolder elementHolder = elementsToMove.next();
+        for (CaveElementHolder selectedHolder : selection) {
 
-            CaveElementHolder targetHolder =
-                    elementHolder.getCave().getElementHolder(elementHolder.getRow() + rowOffset,
-                                                             elementHolder.getColumn() + columnOffset);
-
-            if (elementHolder.getCaveElement() != null) {
-                holdersToElements.put(targetHolder, elementHolder.getCaveElement().clone());
-            } else {
-                holdersToElements.put(targetHolder, null);
+            if (selectedHolder.getCaveElement() == null) {
+                throw new IllegalStateException();
             }
 
-            elementHolder.setCaveElement(null);
+            int newRow = selectedHolder.getRow() + rowOffset;
+            int newColumn = selectedHolder.getColumn() + columnOffset;
+
+            if (newRow >= 0 && newRow < caveView.getCave().getHeight() &&
+                    newColumn >= 0 && newColumn < caveView.getCave().getWidth()) {
+                holdersToElements.put(caveView.getCave().getElementHolder(newRow, newColumn),
+                                      selectedHolder.getCaveElement().clone());
+            }
+
+            selectedHolder.setCaveElement(null);
         }
 
         for (Map.Entry<CaveElementHolder, CaveElement> entry : holdersToElements.entrySet()) {

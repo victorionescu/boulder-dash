@@ -38,7 +38,7 @@ public class CreateElementHandler extends AbstractStretchBoxHandler {
     public void changeSelection() {
         caveView.getSelectionManager().clearSelection();
         if (stretchBoxOrigin != null && stretchBoxTarget != null) {
-            selectElements(stretchBoxOrigin, stretchBoxTarget);
+            selectElementsInBox(stretchBoxOrigin, stretchBoxTarget);
         }
     }
 

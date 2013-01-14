@@ -36,6 +36,8 @@ public class SelectTool implements ActionListener, SelectionManagerListener {
 
     public void selectionCleared() {}
 
+    public void gameStateChanged(SelectionManager.GameStates newGameState) {}
+
     public void updateButton() {
         button.setSelected(selectionManager.getCurrentTool() == tool);
     }

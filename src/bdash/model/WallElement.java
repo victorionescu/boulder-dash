@@ -13,16 +13,12 @@ public class WallElement extends CaveElement {
         return wallColor;
     }
 
-    public void setWallColor(WallColor wallColor) {
-        this.wallColor = wallColor;
-    }
-
     public CaveElement deepClone() {
         return new WallElement(wallColor);
     }
 
-    public void accept(CaveElementVisitor visitor) {
-        visitor.visit(this);
+    public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {
+        visitor.visit(this, holder);
     }
 
     public boolean equals(Object object) {
@@ -32,6 +28,10 @@ public class WallElement extends CaveElement {
         } else {
             return false;
         }
+    }
+
+    public CatcherStrategy getCatcherStrategy() {
+        return DryCatcherStrategy.INSTANCE;
     }
 
     public static final class WallColor {

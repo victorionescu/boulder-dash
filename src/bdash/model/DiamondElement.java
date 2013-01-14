@@ -9,7 +9,11 @@ public class DiamondElement extends HeavyElement {
         return new DiamondElement();
     }
 
-    public void accept(CaveElementVisitor visitor) {
-        visitor.visit(this);
+    public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {
+        visitor.visit(this, holder);
+    }
+
+    public CatcherStrategy getCatcherStrategy() {
+        return SlipperyCatcherStrategy.INSTANCE;
     }
 }

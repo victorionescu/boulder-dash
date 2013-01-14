@@ -1,6 +1,5 @@
 package bdash.selection;
 
-import bdash.model.CaveElement;
 import bdash.model.CaveElementHolder;
 
 import java.util.Collection;
@@ -13,4 +12,6 @@ public interface SelectionManagerListener {
     void elementsDeselected(Collection<CaveElementHolder> elements);
 
     void selectionCleared();
+
+    void gameStateChanged(SelectionManager.GameStates newGameState);
 }

@@ -19,7 +19,6 @@ public class CaveElementHolderPainter {
         painters.put(DiamondElement.class, DiamondElementPainter.INSTANCE);
         painters.put(DirtElement.class, DirtElementPainter.INSTANCE);
         painters.put(PlayerElement.class, PlayerElementPainter.INSTANCE);
-        painters.put(EmptyElement.class, EmptyElementPainter.INSTANCE);
     }
 
     protected CaveElementHolderPainter() {}
@@ -28,7 +27,7 @@ public class CaveElementHolderPainter {
         if (element != null) {
             return painters.get(element.getClass());
         } else {
-            return EmptyElementPainter.INSTANCE;
+            return EmptySquarePainter.INSTANCE;
         }
     }
 

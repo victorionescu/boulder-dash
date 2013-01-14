@@ -41,66 +41,61 @@ public class Cave {
         return elementHolders.getElement(row, column);
     }
 
-    public void fireElementHolderWillChange(CaveElementHolder elementHolder) {
+    protected void fireElementHolderWillChange(CaveElementHolder elementHolder) {
         for (CaveListener l : listeners) {
             l.caveElementWillChange(this, elementHolder);
         }
     }
 
-    public void fireElementHolderChanged(CaveElementHolder elementHolder) {
+    protected void fireElementHolderChanged(CaveElementHolder elementHolder) {
         for (CaveListener l : listeners) {
             l.caveElementChanged(this, elementHolder);
         }
     }
 
-    /*
-    public CaveElementHolder getElementHolder(int row, int column) {
-        return elementHolders.getElement(row, column);
-    }
-    */
-
-    /*
-    public void setElement(int x, int y, CaveElement e) {
-        elements.setElement(x, y, e);
-    }
-    */
-
-    /*
-    public Cave clone() {
-        Cave newCave = new Cave(dimension);
-
-        Iterator<CaveElement> elementIterator = getElements();
-        while (elementIterator.hasNext()) {
-            CaveElement element = elementIterator.next();
-
-            CaveElement newElement = element.clone();
-            newElement.setCave(newCave);
-
-            newCave.setElement(newElement.getX(), newElement.getY(), newElement);
-        }
-
+    protected void fireGameLost() {
         for (CaveListener l : listeners) {
-            newCave.addListener(l);
+            l.gameLost();
+        }
+    }
+
+
+    public Cave clone() {
+        Cave newCave = new Cave(width, height);
+
+        for (int row = 0; row < height; row += 1) {
+            for (int column = 0; column < width; column += 1) {
+                CaveElement newElement = null;
+                if (elementHolders.getElement(row, column).getCaveElement() != null) {
+                    newElement = elementHolders.getElement(row, column).getCaveElement().clone();
+                }
+
+                newCave.getElementHolder(row, column).setCaveElement(newElement);
+            }
         }
 
         return newCave;
     }
-    */
+
 
     public void addListener(CaveListener listener) {
         listeners.add(listener);
     }
 
-    /*
-    public void fireCaveElementWillChange(CaveElement caveElement) {
-        for (CaveListener listener : listeners) {
-            listener.caveElementWillChange(this, caveElement);
+    public static class Coordinates {
+        private final int row, column;
+
+        public Coordinates(int row, int column) {
+            this.row = row;
+            this.column = column;
+        }
+
+        public int getRow() {
+            return row;
+        }
+
+        public int getColumn() {
+            return column;
         }
     }
-
-    public void fireCaveElementChanged(CaveElement caveElement) {
-        for (CaveListener listener : listeners) {
-            listener.caveElementChanged(this, caveElement);
-        }
-    }*/
 }

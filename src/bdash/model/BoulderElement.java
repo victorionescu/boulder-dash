@@ -9,7 +9,11 @@ public class BoulderElement extends HeavyElement {
         return new BoulderElement();
     }
 
-    public void accept(CaveElementVisitor visitor) {
-        visitor.visit(this);
+    public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {
+        visitor.visit(this, holder);
+    }
+
+    public CatcherStrategy getCatcherStrategy() {
+        return SlipperyCatcherStrategy.INSTANCE;
     }
 }

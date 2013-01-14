@@ -1,6 +1,6 @@
 package bdash.view;
 
-import bdash.controller.GameController;
+import bdash.ApplicationFrame;
 import bdash.model.*;
 import bdash.selection.SelectionManager;
 import bdash.selection.SelectionManagerListener;
@@ -16,7 +16,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CaveView extends JPanel {
-    /* Cave object that is being monitored by the view and edited by the controller. */
+    /* Parent ApplicationFrame. */
+    private final ApplicationFrame applicationFrame;
+
+    /* Cave object that is used for editing the contents. */
     private Cave cave;
 
     /* SelectionManager object dealing with the current selection. */
@@ -24,9 +27,6 @@ public class CaveView extends JPanel {
 
     /* Listens to the events triggered by either cave or selection manager changes. */
     private final CaveViewListener caveViewListener;
-
-    /* The game controller, responsible with the player's moves. */
-    private GameController gameController;
 
     /* Mouse handlers, one for each tool provided by the toolbar. */
     private final MouseHandler editHandler;
@@ -42,7 +42,8 @@ public class CaveView extends JPanel {
 
 
 
-    public CaveView(Cave cave, SelectionManager selectionManager) {
+    public CaveView(ApplicationFrame applicationFrame, Cave cave, SelectionManager selectionManager) {
+        this.applicationFrame = applicationFrame;
         this.cave = cave;
         this.selectionManager = selectionManager;
 
@@ -80,11 +81,11 @@ public class CaveView extends JPanel {
         return selectionManager;
     }
 
-    public CaveElementHolder getElementHolderAt(int x, int y) {
+    public CaveElementHolder getElementHolderAt(Point point) {
         Iterator<CaveElementHolder> elementHolders = cave.getElementHolders();
         while (elementHolders.hasNext()) {
             CaveElementHolder elementHolder = elementHolders.next();
-            if (elementHolder.isHit(x, y)) {
+            if (elementHolder.isHit(point)) {
                 return elementHolder;
             }
         }
@@ -125,30 +126,46 @@ public class CaveView extends JPanel {
             }
         }
 
+        if (selectionManager.getGameState() == SelectionManager.GameStates.WON) {
+            drawNotificationScreen(g2d, "Game won!");
+        } else if (selectionManager.getGameState() == SelectionManager.GameStates.LOST) {
+            drawNotificationScreen(g2d, "Game lost!");
+        }
+
         g2d.setColor(oldColor);
         g2d.setClip(oldClip);
     }
 
-    /* Initialize game controller and save cave state whenever play mode becomes active. */
-    private void handlePlayMode() {
-        System.out.println("PLAY!!");
-        /*if (isPlayActive) {
-            cave = caveCopy;
-            isPlayActive = false;
+    private void drawNotificationScreen(Graphics2D g, String message) {
+        Color oldColor = g.getColor();
+        Shape oldClip = g.getClip();
+        Composite oldComposite = g.getComposite();
+        Font oldFont = g.getFont();
 
-            if (gameController == null) {
-                throw new IllegalStateException();
-            }
-            gameController.stopTimer();
-        }
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+        g.setColor(Color.BLACK);
 
-        if (selectionManager.getCurrentTool() == SelectionManager.Tools.PLAY) {
-            caveCopy = cave;
-            cave = caveCopy.clone();
-            isPlayActive = true;
+        int offsetX = CaveElementHolder.HOLDER_SIZE_IN_PX;
+        int offsetY = CaveElementHolder.HOLDER_SIZE_IN_PX;
 
-            gameController = new GameController(this);
-        }*/
+        int width = CaveElementHolder.HOLDER_SIZE_IN_PX * (cave.getWidth() - 2);
+        int height = CaveElementHolder.HOLDER_SIZE_IN_PX * (cave.getHeight() - 2);
+
+        g.fillRect(offsetX, offsetY, width, height);
+
+        g.setColor(Color.WHITE);
+
+        g.setFont(oldFont.deriveFont(100f));
+
+        int textOffsetX = offsetX + (width * 30) / 100;
+        int textOffsetY = offsetY + (height * 10) / 100;
+
+        g.drawString(message, textOffsetX, textOffsetY + height / 2);
+
+        g.setColor(oldColor);
+        g.setClip(oldClip);
+        g.setComposite(oldComposite);
+        g.setFont(oldFont);
     }
 
     /* Activate the handler corresponding to the currently selected tool. */
@@ -200,9 +217,18 @@ public class CaveView extends JPanel {
                     CaveElementHolder.HOLDER_SIZE_IN_PX);
         }
 
+        public void gameLost() {
+            applicationFrame.stopPlay();
+            selectionManager.changeGameState(SelectionManager.GameStates.LOST);
+        }
+
         public void currentToolChanged(SelectionManager.Tools newCurrentTool) {
             updateMouseHandler();
-            //handlePlayMode();
+            if (selectionManager.getCurrentTool() == SelectionManager.Tools.PLAY) {
+                applicationFrame.startPlay();
+            } else {
+                applicationFrame.restoreEdit();
+            }
         }
 
         public void elementsSelected(Collection<CaveElementHolder> elements) {
@@ -214,6 +240,10 @@ public class CaveView extends JPanel {
         }
 
         public void selectionCleared() {
+            repaint();
+        }
+
+        public void gameStateChanged(SelectionManager.GameStates newGameState) {
             repaint();
         }
     }

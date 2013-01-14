@@ -29,8 +29,8 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
     public void mouseMoved(MouseEvent e) {}
 
     protected List<CaveElementHolder> elementsInBox(Point boxOrigin, Point boxTarget) {
-        CaveElementHolder start = caveView.getElementHolderAt(boxOrigin.x, boxOrigin.y);
-        CaveElementHolder end = caveView.getElementHolderAt(boxTarget.x, boxTarget.y);
+        CaveElementHolder start = caveView.getElementHolderAt(boxOrigin);
+        CaveElementHolder end = caveView.getElementHolderAt(boxTarget);
 
         List<CaveElementHolder> elementList = new ArrayList<CaveElementHolder>();
 
@@ -50,9 +50,7 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
         return elementList;
     }
 
-    protected void selectElementsInBox(Point boxOrigin, Point boxTarget) {
-        caveView.getSelectionManager().selectElements(elementsInBox(boxOrigin, boxTarget));
-    }
+    public abstract void makeActive();
 
     protected abstract void boxStretchingFinished();
 }

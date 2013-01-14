@@ -17,8 +17,10 @@ public class SelectWallColor implements ItemListener, SelectionManagerListener {
     public SelectWallColor(SelectionManager selectionManager, ApplicationFrame.WallColorComboBox comboBox) {
         this.selectionManager = selectionManager;
         this.comboBox = comboBox;
+
         selectionManager.addListener(this);
         comboBox.addItemListener(this);
+
         updateBox();
     }
 
@@ -42,28 +44,30 @@ public class SelectWallColor implements ItemListener, SelectionManagerListener {
         updateBox();
     }
 
+    public void gameStateChanged(SelectionManager.GameStates newGameState) {}
+
     public void updateBox() {
         comboBox.setVisible(selectionManager.getCurrentTool() == SelectionManager.Tools.EDIT);
 
+        SelectionCheckVisitor selectionCheckVisitor = new SelectionCheckVisitor();
         Iterator<CaveElementHolder> selection = selectionManager.getSelection();
 
-        WallCheckVisitor wallCheckVisitor = new WallCheckVisitor();
-
-        while (selection.hasNext() && wallCheckVisitor.hasWallsOnly()) {
-            CaveElement element = selection.next().getCaveElement();
-            if (element != null) {
-                element.accept(wallCheckVisitor);
+        while (selection.hasNext()) {
+            CaveElementHolder elementHolder = selection.next();
+            CaveElement caveElement = elementHolder.getCaveElement();
+            if (caveElement != null) {
+                caveElement.accept(selectionCheckVisitor, elementHolder);
             }
         }
 
-        comboBox.setEnabled(!selectionManager.isSelectionEmpty() &&
-                wallCheckVisitor.hasWallsOnly());
+        comboBox.setEnabled(selectionCheckVisitor.doesContainElements() && selectionCheckVisitor.hasWallsOnly());
 
-        comboBox.selectWallColor(wallCheckVisitor.getWallColor());
+        comboBox.selectWallColor(selectionCheckVisitor.getWallColor());
     }
 
     public void updateWalls() {
         WallElement.WallColor newWallColor = (WallElement.WallColor)comboBox.getItemAt(comboBox.getSelectedIndex());
+
         if (newWallColor != WallElement.WallColor.UNDEFINED) {
             Iterator<CaveElementHolder> selection = selectionManager.getSelection();
 
@@ -71,14 +75,7 @@ public class SelectWallColor implements ItemListener, SelectionManagerListener {
                 CaveElementHolder elementHolder = selection.next();
 
                 if (elementHolder.getCaveElement() != null) {
-                    Cave cave = elementHolder.getCave();
-
-                    cave.fireElementHolderWillChange(elementHolder);
-
-                    WallElement wallElement = (WallElement)elementHolder.getCaveElement();
-                    wallElement.setWallColor(newWallColor);
-
-                    cave.fireElementHolderChanged(elementHolder);
+                    elementHolder.setCaveElement(new WallElement(newWallColor));
                 }
             }
         }

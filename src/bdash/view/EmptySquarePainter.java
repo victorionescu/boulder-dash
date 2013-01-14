@@ -4,10 +4,10 @@ import bdash.model.CaveElement;
 
 import java.awt.*;
 
-public class EmptyElementPainter implements CaveElementPainter {
-    public static final EmptyElementPainter INSTANCE = new EmptyElementPainter();
+public class EmptySquarePainter implements CaveElementPainter {
+    public static final EmptySquarePainter INSTANCE = new EmptySquarePainter();
 
-    private EmptyElementPainter() {}
+    private EmptySquarePainter() {}
 
     public void paint(Graphics2D g, CaveElement e, int row, int column) {}
 

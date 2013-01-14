@@ -17,7 +17,11 @@ public class PlayerElement extends CaveElement {
         return new PlayerElement();
     }
 
-    public void accept(CaveElementVisitor visitor) {
-        visitor.visit(this);
+    public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {
+        visitor.visit(this, holder);
+    }
+
+    public CatcherStrategy getCatcherStrategy() {
+        return PlayerCatcherStrategy.INSTANCE;
     }
 }

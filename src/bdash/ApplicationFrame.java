@@ -1,6 +1,7 @@
 package bdash;
 
 import bdash.controller.DeleteSelection;
+import bdash.controller.GameController;
 import bdash.controller.SelectTool;
 import bdash.controller.SelectWallColor;
 import bdash.model.*;
@@ -15,25 +16,61 @@ import java.util.ArrayList;
 
 public class ApplicationFrame extends JFrame {
     private final CaveView caveView;
+
+    private final Cave cave;
+
     private final SelectionManager selectionManager;
+
+    private final JComponent toolBar;
+
+    private GameController gameController;
 
     public ApplicationFrame(int width, int height) {
         super("Boulder Dash");
 
-        selectionManager = new SelectionManager();
-        caveView = new CaveView(new Cave(width, height), selectionManager);
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
+        selectionManager = new SelectionManager(SelectionManager.Tools.EDIT);
+
+        cave = new Cave(width, height);
+
+        toolBar = getToolbar();
+
+        caveView = new CaveView(this, cave, selectionManager);
+
+        buildContentPane(caveView);
+    }
+
+    private void buildContentPane(CaveView caveView) {
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setContentPane(contentPane);
 
-        contentPane.add(getToolbar(), BorderLayout.NORTH);
+        contentPane.add(toolBar, BorderLayout.NORTH);
         contentPane.add(caveView, BorderLayout.CENTER);
 
         pack();
+    }
+
+    public void startPlay() {
+        Cave playCave = cave.clone();
+
+        buildContentPane(new CaveView(this, playCave, new SelectionManager(SelectionManager.Tools.PLAY)));
+
+        gameController = new GameController(playCave);
+    }
+
+    public void stopPlay() {
+        if (gameController != null) {
+            gameController.stopTimer();
+        }
+    }
+
+    public void restoreEdit() {
+        stopPlay();
+
+        buildContentPane(caveView);
     }
 
     public JComponent getToolbar() {

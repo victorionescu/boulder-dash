@@ -5,7 +5,11 @@ public class DirtElement extends CaveElement {
         return new DirtElement();
     }
 
-    public void accept(CaveElementVisitor visitor) {
-        visitor.visit(this);
+    public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {
+        visitor.visit(this, holder);
+    }
+
+    public CatcherStrategy getCatcherStrategy() {
+        return DryCatcherStrategy.INSTANCE;
     }
 }

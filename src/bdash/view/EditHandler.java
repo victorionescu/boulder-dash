@@ -4,6 +4,7 @@ import bdash.model.Cave;
 import bdash.model.CaveElement;
 import bdash.model.CaveElementHolder;
 import bdash.model.CaveListener;
+import bdash.selection.SelectionManager;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -16,30 +17,29 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
 
     private Point dragBoxOrigin;
     private Point dragBoxTarget;
+
     private Modes currentMode;
+
     private final List<CaveElementHolder> selection;
 
     public EditHandler(CaveView caveView) {
         super(caveView);
 
         selection = new ArrayList<CaveElementHolder>();
-        currentMode = null;
+
+        currentMode = Modes.STRETCH_BOX;
+
         dragBoxOrigin = null;
         dragBoxTarget = null;
+
+        caveView.getCave().addListener(this);
     }
 
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            CaveElementHolder hitElement = caveView.getElementHolderAt(e.getPoint().x, e.getPoint().y);
-            if (hitElement == null) {
-                throw new IllegalStateException();
-            }
+            CaveElementHolder hitElement = caveView.getElementHolderAt(e.getPoint());
 
-            if (caveView.getSelectionManager().isSelected(hitElement)){
-                if (stretchBoxOrigin == null || stretchBoxTarget == null) {
-                    throw new IllegalStateException();
-                }
-
+            if (selection.contains(hitElement)){
                 dragBoxOrigin = e.getPoint();
                 dragBoxTarget = e.getPoint();
             } else {
@@ -58,26 +58,18 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
 
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            if (currentMode == null) {
-                throw new IllegalStateException();
-            }
-
             if (currentMode == Modes.STRETCH_BOX) {
                 boxStretchingFinished();
-            } else {
+            } else if (currentMode == Modes.DRAG_BOX) {
                 boxDraggingFinished();
             }
         }
     }
 
     public void mouseDragged(MouseEvent e) {
-        if (currentMode == null) {
-            throw new IllegalStateException();
-        }
-
         if (currentMode == Modes.STRETCH_BOX) {
             stretchBoxTarget = e.getPoint();
-        } else {
+        } else if (currentMode == Modes.DRAG_BOX) {
             dragBoxTarget = e.getPoint();
         }
 
@@ -87,22 +79,14 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
     public void changeSelection() {
         caveView.getSelectionManager().clearSelection();
 
-        if (currentMode == null) {
-            return;
-        }
-
-        if (stretchBoxOrigin == null || stretchBoxTarget == null) {
-            throw new IllegalStateException();
-        }
-
         if (currentMode == Modes.STRETCH_BOX) {
-            selectElementsInBox(stretchBoxOrigin, stretchBoxTarget);
+            caveView.getSelectionManager().selectElements(elementsInBox(stretchBoxOrigin, stretchBoxTarget));
         } else {
             caveView.getSelectionManager().selectElements(selection);
 
             if (dragBoxOrigin != null && dragBoxTarget != null) {
-                int columnOffset = (dragBoxTarget.x - dragBoxOrigin.x) / 30;
-                int rowOffset = (dragBoxTarget.y - dragBoxOrigin.y) / 30;
+                int columnOffset = (dragBoxTarget.x - dragBoxOrigin.x) / CaveElementHolder.HOLDER_SIZE_IN_PX;
+                int rowOffset = (dragBoxTarget.y - dragBoxOrigin.y) / CaveElementHolder.HOLDER_SIZE_IN_PX;
 
 
                 List<CaveElementHolder> elementsToSelect = new ArrayList<CaveElementHolder>();
@@ -126,20 +110,28 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
         changeSelection();
     }
 
-    public void caveElementWillChange(Cave cave, CaveElementHolder elementHolder) {
-        selection.remove(elementHolder);
-    }
+    public void caveElementWillChange(Cave cave, CaveElementHolder elementHolder) {}
 
     public void caveElementChanged(Cave cave, CaveElementHolder elementHolder) {
-        selection.remove(elementHolder);
+        /*
+            Whenever a tool that is different from EDIT changes an element which is part
+            of the current selection, we make sure to remove the corresponding element holder
+            from the selection.
+         */
+        if (caveView.getSelectionManager().getCurrentTool() != SelectionManager.Tools.EDIT ||
+                elementHolder.getCaveElement() == null) {
+            selection.remove(elementHolder);
+        }
     }
+
+    public void gameLost() {}
 
     protected void boxStretchingFinished() {
         currentMode = Modes.DRAG_BOX;
 
         selection.clear();
-        List<CaveElementHolder> boxElements = elementsInBox(stretchBoxOrigin, stretchBoxTarget);
-        for (CaveElementHolder selectedHolder : boxElements) {
+
+        for (CaveElementHolder selectedHolder : elementsInBox(stretchBoxOrigin, stretchBoxTarget)) {
             if (selectedHolder.getCaveElement() != null) {
                 selection.add(selectedHolder);
             }
@@ -154,13 +146,15 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
 
         moveElements(rowOffset, columnOffset);
 
+        selection.clear();
+
         stretchBoxOrigin = null;
         stretchBoxTarget = null;
 
         dragBoxOrigin = null;
         dragBoxTarget = null;
 
-        currentMode = null;
+        currentMode = Modes.STRETCH_BOX;
 
         changeSelection();
     }
@@ -183,7 +177,7 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
                                       selectedHolder.getCaveElement().clone());
             }
 
-            selectedHolder.setCaveElement(null);
+            holdersToElements.put(selectedHolder, null);
         }
 
         for (Map.Entry<CaveElementHolder, CaveElement> entry : holdersToElements.entrySet()) {

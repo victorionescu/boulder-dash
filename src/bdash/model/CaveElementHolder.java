@@ -1,5 +1,7 @@
 package bdash.model;
 
+import java.awt.Point;
+
 public class CaveElementHolder {
     public static final int HOLDER_SIZE_IN_PX = 30;
 
@@ -15,10 +17,6 @@ public class CaveElementHolder {
         caveElement = null;
     }
 
-    public Cave getCave() {
-        return cave;
-    }
-
     public int getRow() {
         return row;
     }
@@ -32,10 +30,19 @@ public class CaveElementHolder {
     }
 
     public void setCaveElement(CaveElement caveElement) {
+        cave.fireElementHolderWillChange(this);
         this.caveElement = caveElement;
+        cave.fireElementHolderChanged(this);
     }
 
-    public boolean isHit(int x, int y) {
+    public boolean isHit(Point point) {
+        if (point == null) {
+            return false;
+        }
+
+        int x = point.x;
+        int y = point.y;
+
         return (x >= column * HOLDER_SIZE_IN_PX && x < (column + 1) * HOLDER_SIZE_IN_PX) &&
                (y >= row * HOLDER_SIZE_IN_PX && y < (row + 1) * HOLDER_SIZE_IN_PX);
     }

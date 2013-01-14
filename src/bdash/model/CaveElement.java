@@ -15,5 +15,6 @@ public abstract class CaveElement implements Cloneable {
 
 
     public abstract CaveElement deepClone();
-    public abstract void accept(CaveElementVisitor visitor);
+    public abstract void accept(CaveElementVisitor visitor, CaveElementHolder holder);
+    public abstract CatcherStrategy getCatcherStrategy();
 }

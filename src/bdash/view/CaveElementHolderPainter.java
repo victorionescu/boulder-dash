@@ -6,7 +6,11 @@ import java.awt.*;
 
 import java.util.Map;
 import java.util.HashMap;
-
+/*
+ * Painter class for the CaveElementHolder.
+ * It defines a default painter for the selection and uses specialized further painters for each
+ * element.
+ */
 public class CaveElementHolderPainter {
     public static final CaveElementHolderPainter PAINTER = new CaveElementHolderPainter();
 

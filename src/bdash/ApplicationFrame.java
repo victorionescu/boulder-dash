@@ -1,9 +1,6 @@
 package bdash;
 
-import bdash.controller.DeleteSelection;
-import bdash.controller.GameController;
-import bdash.controller.SelectTool;
-import bdash.controller.SelectWallColor;
+import bdash.controller.*;
 import bdash.model.*;
 import bdash.selection.SelectionManager;
 import bdash.view.CaveView;
@@ -11,19 +8,30 @@ import bdash.view.CaveView;
 import javax.swing.*;
 import java.awt.*;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.List;
 import java.util.ArrayList;
-
+/*
+    Main class, representing the window of the game.
+ */
 public class ApplicationFrame extends JFrame {
     private final CaveView caveView;
 
     private final Cave cave;
 
+    /* SelectionManager for edit mode. */
     private final SelectionManager selectionManager;
+
+    /* SelectionManager for play mode. */
+    private final SelectionManager playSelectionManager;
 
     private final JComponent toolBar;
 
+    /* GameController instantiated when play mode is active. */
     private GameController gameController;
+
+    private final KeyListener keyListener;
 
     public ApplicationFrame(int width, int height) {
         super("Boulder Dash");
@@ -32,6 +40,7 @@ public class ApplicationFrame extends JFrame {
         setResizable(false);
 
         selectionManager = new SelectionManager(SelectionManager.Tools.EDIT);
+        playSelectionManager = new SelectionManager(SelectionManager.Tools.PLAY);
 
         cave = new Cave(width, height);
 
@@ -40,8 +49,34 @@ public class ApplicationFrame extends JFrame {
         caveView = new CaveView(this, cave, selectionManager);
 
         buildContentPane(caveView);
+
+        keyListener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent keyEvent) {}
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent) {
+                if (playSelectionManager.getGameState() != SelectionManager.GameStates.UNDEFINED) {
+                    return;
+                }
+
+                if (keyEvent.getKeyCode() == KeyEvent.VK_DOWN) {
+                    gameController.movePlayer(PlayerElement.Direction.SOUTH);
+                } else if (keyEvent.getKeyCode() == KeyEvent.VK_UP) {
+                    gameController.movePlayer(PlayerElement.Direction.NORTH);
+                } else if (keyEvent.getKeyCode() == KeyEvent.VK_LEFT) {
+                    gameController.movePlayer(PlayerElement.Direction.WEST);
+                } else if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    gameController.movePlayer(PlayerElement.Direction.EAST);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {}
+        };
     }
 
+    /* Resets the content pane to display 'caveView'. Used to switch between game modes. */
     private void buildContentPane(CaveView caveView) {
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -53,26 +88,46 @@ public class ApplicationFrame extends JFrame {
         pack();
     }
 
+    /* Instantiates a controller and starts the timer. */
     public void startPlay() {
         Cave playCave = cave.clone();
 
-        buildContentPane(new CaveView(this, playCave, new SelectionManager(SelectionManager.Tools.PLAY)));
-
         gameController = new GameController(playCave);
+
+        playSelectionManager.changeGameState(SelectionManager.GameStates.UNDEFINED);
+        playSelectionManager.setDiamondObjective(selectionManager.getDiamondObjective());
+
+        buildContentPane(new CaveView(this, playCave, playSelectionManager));
+
+
+        if (playSelectionManager.getDiamondObjective() == 0) {
+            playSelectionManager.changeGameState(SelectionManager.GameStates.WON);
+        }
+
+        getContentPane().addKeyListener(keyListener);
+
+        getContentPane().setFocusable(true);
+        getContentPane().requestFocusInWindow();
+
     }
 
+    /* Stops the timer in the controller, hence the game. */
     public void stopPlay() {
         if (gameController != null) {
             gameController.stopTimer();
         }
     }
 
+    /*
+        Restores state to edit mode. Stops timer and resets caveView.
+     */
     public void restoreEdit() {
         stopPlay();
 
         buildContentPane(caveView);
     }
 
+    /* Builds up the toolbar. */
     public JComponent getToolbar() {
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -104,6 +159,9 @@ public class ApplicationFrame extends JFrame {
         WallColorComboBox wallColorBox = new WallColorComboBox();
         new SelectWallColor(selectionManager, wallColorBox);
 
+        JTextField diamondsTextField = new JTextField();
+        new RequiredDiamonds(selectionManager, playSelectionManager, diamondsTextField);
+
         toolBar.add(editButton);
         toolBar.add(createWallButton);
         toolBar.add(createBoulderButton);
@@ -116,10 +174,12 @@ public class ApplicationFrame extends JFrame {
 
         toolBar.add(deleteButton);
         toolBar.add(wallColorBox);
+        toolBar.add(diamondsTextField);
 
         return toolBar;
     }
 
+    /* Class implementing the custom ComboBox used for picking the wall color in edit mode. */
     public static class WallColorComboBox extends JComboBox {
         public static final List<WallElement.WallColor> COLORS = new ArrayList<WallElement.WallColor>();
 
@@ -141,6 +201,10 @@ public class ApplicationFrame extends JFrame {
                 }
             }
         }
+    }
+
+    public void popDialog(String message) {
+        JOptionPane.showMessageDialog(this, message);
     }
 
     public static void main(String[] args) {

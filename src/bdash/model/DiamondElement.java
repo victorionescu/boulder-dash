@@ -1,6 +1,11 @@
 package bdash.model;
 
+/*
+    Class representing the diamonds.
+ */
+
 public class DiamondElement extends HeavyElement {
+    /* Diamonds are lethal. */
     public boolean isLethal() {
         return true;
     }
@@ -13,6 +18,7 @@ public class DiamondElement extends HeavyElement {
         visitor.visit(this, holder);
     }
 
+    /* Diamonds are slippery. */
     public CatcherStrategy getCatcherStrategy() {
         return SlipperyCatcherStrategy.INSTANCE;
     }

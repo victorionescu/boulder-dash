@@ -30,11 +30,21 @@ public class WallElement extends CaveElement {
         }
     }
 
+    /*
+        Objects stop falling after landing on walls.
+     */
     public CatcherStrategy getCatcherStrategy() {
         return DryCatcherStrategy.INSTANCE;
     }
 
+    /*
+        Ancillary class used to better represent the color of a wall.
+
+        Also, it is used to associate colors with string representations and restrict the choice of colors
+        for walls.
+     */
     public static final class WallColor {
+        /* Currently available colors. */
         public static final WallColor UNDEFINED = new WallColor(null, "");
         public static final WallColor RED = new WallColor(Color.RED, "Red");
         public static final WallColor GREEN = new WallColor(Color.GREEN, "Green");

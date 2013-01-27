@@ -1,6 +1,11 @@
 package bdash.model;
 
+/*
+    Class representing the boulders.
+ */
+
 public class BoulderElement extends HeavyElement {
+    /* Boulders are lethal. */
     public boolean isLethal() {
         return true;
     }
@@ -13,6 +18,7 @@ public class BoulderElement extends HeavyElement {
         visitor.visit(this, holder);
     }
 
+    /* Boulders are slippery. */
     public CatcherStrategy getCatcherStrategy() {
         return SlipperyCatcherStrategy.INSTANCE;
     }

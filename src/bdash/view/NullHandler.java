@@ -1,7 +1,10 @@
 package bdash.view;
 
 import java.awt.event.MouseEvent;
-
+/*
+ * MouseHandler implementing the null object pattern.
+ * Used in play mode, when mouse is deactivated.
+ */
 public class NullHandler implements MouseHandler {
     private final CaveView caveView;
 

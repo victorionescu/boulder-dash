@@ -11,15 +11,21 @@ import java.awt.event.MouseEvent;
 
 import java.util.*;
 import java.util.List;
-
+/*
+ * Handler used in the 'Edit' mode.
+ * Implements CaveListener. Removes a holder from the selection whenever the element contained by
+ * the holder changes.
+ */
 public class EditHandler extends AbstractStretchBoxHandler implements CaveListener {
     private static enum Modes { STRETCH_BOX, DRAG_BOX }
 
     private Point dragBoxOrigin;
     private Point dragBoxTarget;
-
+    
+    /* The current mode, if the box is being stretched or dragged. */
     private Modes currentMode;
 
+    /* The selection that has to be remembered when cycling through tools. */
     private final List<CaveElementHolder> selection;
 
     public EditHandler(CaveView caveView) {
@@ -76,6 +82,9 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
         changeSelection();
     }
 
+    /*
+     * Draws the selection based on the current mode.
+     */
     public void changeSelection() {
         caveView.getSelectionManager().clearSelection();
 
@@ -124,8 +133,13 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
         }
     }
 
+    public void diamondCollected() {}
+
     public void gameLost() {}
 
+    /*
+     * When the stretching has finished, the non-empty holders in the box should stay selected.
+     */
     protected void boxStretchingFinished() {
         currentMode = Modes.DRAG_BOX;
 
@@ -140,6 +154,9 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
         changeSelection();
     }
 
+    /*
+     * When the dragging has finished, elements should be moved to their new positions.
+     */
     protected void boxDraggingFinished() {
         int columnOffset = (dragBoxTarget.x - dragBoxOrigin.x) / CaveElementHolder.HOLDER_SIZE_IN_PX;
         int rowOffset = (dragBoxTarget.y - dragBoxOrigin.y) / CaveElementHolder.HOLDER_SIZE_IN_PX;
@@ -159,8 +176,12 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
         changeSelection();
     }
 
+    /*
+     * Moves elements by rowOffset and columnOffset, whenever possible.
+     */
     private void moveElements(int rowOffset, int columnOffset) {
         Map<CaveElementHolder, CaveElement>  holdersToElements = new HashMap<CaveElementHolder, CaveElement>();
+        Set<CaveElementHolder> holdersToEmpty = new HashSet<CaveElementHolder>();
 
         for (CaveElementHolder selectedHolder : selection) {
 
@@ -177,7 +198,11 @@ public class EditHandler extends AbstractStretchBoxHandler implements CaveListen
                                       selectedHolder.getCaveElement().clone());
             }
 
-            holdersToElements.put(selectedHolder, null);
+            holdersToEmpty.add(selectedHolder);
+        }
+
+        for (CaveElementHolder holderToEmpty : holdersToEmpty) {
+            holderToEmpty.setCaveElement(null);
         }
 
         for (Map.Entry<CaveElementHolder, CaveElement> entry : holdersToElements.entrySet()) {

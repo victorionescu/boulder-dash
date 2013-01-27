@@ -5,7 +5,9 @@ import bdash.model.CaveElementHolder;
 
 import javax.swing.*;
 import java.awt.*;
-
+/*
+ * Abstract painter class for elements that are drawn as icons, such as boulders, diamonds and dirt.
+ */
 public abstract class IconElementPainter implements CaveElementPainter {
     abstract String imagePath();
 

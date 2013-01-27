@@ -5,7 +5,9 @@ import bdash.model.CaveElementHolder;
 import bdash.model.WallElement;
 
 import java.awt.*;
-
+/*
+    Painter class for walls.
+ */
 public class WallElementPainter implements CaveElementPainter {
     public static final WallElementPainter INSTANCE = new WallElementPainter();
 

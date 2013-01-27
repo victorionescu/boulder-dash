@@ -1,6 +1,8 @@
 package bdash.model;
-
-import bdash.model.*;
+/*
+    Visitor implementing the null object pattern, that can easily be extended by visitors with reduced
+    functionality.
+ */
 
 public class NullElementVisitor implements CaveElementVisitor {
     public void visit(BoulderElement boulderElement, CaveElementHolder holder) {}

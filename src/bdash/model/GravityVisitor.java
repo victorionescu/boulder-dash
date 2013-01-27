@@ -1,5 +1,7 @@
 package bdash.model;
-
+/*
+    Visitor that represents gravity. It tries to pull down any HeavyElement it encounters.
+ */
 public class GravityVisitor extends NullElementVisitor {
     public static final GravityVisitor INSTANCE = new GravityVisitor();
 

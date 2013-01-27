@@ -1,20 +1,21 @@
 package bdash.model;
 
 public class PlayerElement extends CaveElement {
-    public static enum LastDirection {NORTH, SOUTH, EAST, WEST }
+    public static enum Direction {NORTH, SOUTH, EAST, WEST }
 
-    private final LastDirection lastDirection;
+    /* The direction the player is oriented. */
+    private final Direction direction;
 
-    public PlayerElement() {
-        this.lastDirection = LastDirection.WEST;
+    public PlayerElement(Direction direction) {
+        this.direction = direction;
     }
 
-    public LastDirection getLastDirection() {
-        return lastDirection;
+    public Direction getDirection() {
+        return direction;
     }
 
     public CaveElement deepClone() {
-        return new PlayerElement();
+        return new PlayerElement(direction);
     }
 
     public void accept(CaveElementVisitor visitor, CaveElementHolder holder) {

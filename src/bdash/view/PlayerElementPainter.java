@@ -5,7 +5,9 @@ import bdash.model.CaveElementHolder;
 import bdash.model.PlayerElement;
 
 import java.awt.*;
-
+/*
+    Painter for player element.
+ */
 public class PlayerElementPainter implements CaveElementPainter {
     public static final PlayerElementPainter INSTANCE = new PlayerElementPainter();
 
@@ -18,7 +20,7 @@ public class PlayerElementPainter implements CaveElementPainter {
         int offsetX = column * CaveElementHolder.HOLDER_SIZE_IN_PX;
         int offsetY = row * CaveElementHolder.HOLDER_SIZE_IN_PX;
 
-        g.drawOval(offsetX, offsetY, CaveElementHolder.HOLDER_SIZE_IN_PX, CaveElementHolder.HOLDER_SIZE_IN_PX);
+        g.drawOval(offsetX, offsetY, CaveElementHolder.HOLDER_SIZE_IN_PX - 1, CaveElementHolder.HOLDER_SIZE_IN_PX - 1);
 
         int startX = CaveElementHolder.HOLDER_SIZE_IN_PX / 2;
         int startY = CaveElementHolder.HOLDER_SIZE_IN_PX / 2;
@@ -26,12 +28,12 @@ public class PlayerElementPainter implements CaveElementPainter {
         int endX = startX;
         int endY = startY;
 
-        switch (playerElement.getLastDirection()) {
+        switch (playerElement.getDirection()) {
             case EAST:
-                endX = 0;
+                endX = CaveElementHolder.HOLDER_SIZE_IN_PX;
                 break;
             case WEST:
-                endX = CaveElementHolder.HOLDER_SIZE_IN_PX;
+                endX = 0;
                 break;
             case NORTH:
                 endY = 0;

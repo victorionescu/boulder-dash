@@ -3,7 +3,9 @@ package bdash.view;
 import bdash.model.CaveElement;
 
 import java.awt.*;
-
+/*
+ * Painter class used for empty squares.
+ */
 public class EmptySquarePainter implements CaveElementPainter {
     public static final EmptySquarePainter INSTANCE = new EmptySquarePainter();
 

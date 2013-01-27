@@ -1,11 +1,25 @@
 package bdash.model;
+/*
+    Visitor used for checking the selection.
+    It keeps track of the following facts:
+    - if it has encountered elements
+    - if all encountered elements are walls
+    - if all walls have the same color
+    - the color of the walls
 
-import bdash.model.*;
-
+    It is used by the 'Delete' button and the ComboBox that selects the color of the walls.
+ */
 public class SelectionCheckVisitor implements CaveElementVisitor {
+    /* If it contains elements. */
     private boolean containsElements;
+
+    /* If it only contains walls. */
     private boolean wallsOnly;
+
+    /* If all walls have the same color. */
     private boolean sameColor;
+
+    /* The color of the walls. */
     private WallElement.WallColor wallColor;
 
     public SelectionCheckVisitor() {

@@ -1,5 +1,8 @@
 package bdash.view;
-
+/*
+ * Abstract class for every mouse handler that uses a stretch.
+ * It provides basic functionality, such as the 'elementsInBox' function.
+ */
 import bdash.model.CaveElementHolder;
 
 import java.awt.*;
@@ -27,7 +30,8 @@ public abstract class AbstractStretchBoxHandler implements MouseHandler {
     public void mouseClicked(MouseEvent e) {}
 
     public void mouseMoved(MouseEvent e) {}
-
+    
+    /* Returns a list of the elements that have been hit within the box. */
     protected List<CaveElementHolder> elementsInBox(Point boxOrigin, Point boxTarget) {
         CaveElementHolder start = caveView.getElementHolderAt(boxOrigin);
         CaveElementHolder end = caveView.getElementHolderAt(boxTarget);

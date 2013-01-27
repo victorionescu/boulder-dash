@@ -14,10 +14,12 @@ import java.util.Iterator;
 
 import javax.swing.*;
 import java.awt.*;
-
+/*
+    Class representing the cave view. It merges elements of the view (painters) and the controller (mouse handlers).
+ */
 public class CaveView extends JPanel {
     /* Parent ApplicationFrame. */
-    private final ApplicationFrame applicationFrame;
+    protected final ApplicationFrame applicationFrame;
 
     /* Cave object that is used for editing the contents. */
     private Cave cave;
@@ -28,7 +30,7 @@ public class CaveView extends JPanel {
     /* Listens to the events triggered by either cave or selection manager changes. */
     private final CaveViewListener caveViewListener;
 
-    /* Mouse handlers, one for each tool provided by the toolbar. */
+    /* Mouse handlers, one for each tool provided by the toolbar. They pertain to the controller. */
     private final MouseHandler editHandler;
     private final MouseHandler createWallHandler;
     private final MouseHandler createBoulderHandler;
@@ -62,7 +64,7 @@ public class CaveView extends JPanel {
         createBoulderHandler = new CreateElementHandler(this, new BoulderElement());
         createDiamondHandler = new CreateElementHandler(this, new DiamondElement());
         createDirtHandler = new CreateElementHandler(this, new DirtElement());
-        createPlayerHandler = new CreateElementHandler(this, new PlayerElement());
+        createPlayerHandler = new CreateElementHandler(this, new PlayerElement(PlayerElement.Direction.EAST));
         playHandler = new NullHandler(this);
 
         /* Select the initial mouse handler. */
@@ -217,8 +219,11 @@ public class CaveView extends JPanel {
                     CaveElementHolder.HOLDER_SIZE_IN_PX);
         }
 
+        public void diamondCollected() {
+            selectionManager.decreaseDiamondObjective();
+        }
+
         public void gameLost() {
-            applicationFrame.stopPlay();
             selectionManager.changeGameState(SelectionManager.GameStates.LOST);
         }
 
@@ -244,8 +249,13 @@ public class CaveView extends JPanel {
         }
 
         public void gameStateChanged(SelectionManager.GameStates newGameState) {
+            if (newGameState != SelectionManager.GameStates.UNDEFINED) {
+                applicationFrame.stopPlay();
+            }
             repaint();
         }
+
+        public void diamondObjectiveChanged(int newDiamondObjective) {}
     }
 
     /* Mouse event forwarder class used to forward mouse events to the appropriate handler. */

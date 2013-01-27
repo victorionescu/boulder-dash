@@ -1,5 +1,8 @@
 package bdash.util;
-
+/*
+ * Class used to implement a bidimensional array with an iterator that goes bottom-top, left-right.
+ * This is used because we need that order in order to apply gravity.
+ */
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
